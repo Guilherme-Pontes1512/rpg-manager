@@ -1,0 +1,36 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-alter-usuarios-provider
+      author: ducke
+      changes:
+
+        - addColumn:
+            tableName: usuarios
+            columns:
+              - column:
+                  name: username
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: username
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+
+        - dropNotNullConstraint:
+            tableName: usuarios
+            columnName: senha
+            columnDataType: VARCHAR(255)
+
+        - modifyDataType:
+            tableName: usuarios
+            columnName: auth_provider
+            newDataType: VARCHAR(50)
+
+        - addUniqueConstraint:
+            tableName: usuarios
+            columnNames: auth_provider, provider_user_id
+            constraintName: uk_usuario_provider

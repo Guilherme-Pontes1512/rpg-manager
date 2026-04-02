@@ -1,0 +1,44 @@
+databaseChangeLog:
+    - changeSet:
+        id: 002-create-usuarios
+        author: ducke
+        changes:
+          - createTable:
+              tableName: usuarios
+              columns:
+                - column:
+                    name: id
+                    type: bigint
+                    autoIncrement: true
+                    constraints:
+                      primaryKey: true
+                      nullable: false
+
+                - column:
+                    name: nome
+                    type: VARCHAR(255)
+                    constraints:
+                      nullable: false
+
+                - column:
+                    name: email
+                    type: VARCHAR(255)
+                    constraints:
+                      nullable: false
+                      unique: true
+
+                - column:
+                    name: senha
+                    type: VARCHAR(255)
+                    constraints:
+                      nullable: false
+
+                - column:
+                    name: auth_provider
+                    type: VARCHAR(255)
+                    constraints:
+                      nullable: false
+
+                - column:
+                    name: provider_user_id
+                    type: VARCHAR(255)

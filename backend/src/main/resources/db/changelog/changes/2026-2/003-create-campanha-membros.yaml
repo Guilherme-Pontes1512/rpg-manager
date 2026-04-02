@@ -1,0 +1,70 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-create-campanha-membros
+      author: ducke
+      changes:
+        - createTable:
+            tableName: campanha_membros
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: campanha_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: usuario_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: papel
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+
+        # ==== FOREIGN KEY CAMPANHA ====
+        - addForeignKeyConstraint:
+            baseTableName: campanha_membros
+            baseColumnNames: campanha_id
+            referencedTableName: campanhas
+            referencedColumnNames: id
+            constraintName: fk_campanha_membro_campanha
+
+        # ==== FOREIGN KEY USUÁRIO ====
+        - addForeignKeyConstraint:
+            baseTableName: campanha_membros
+            baseColumnNames: usuario_id
+            referencedTableName: usuarios
+            referencedColumnNames: id
+            constraintName: fk_campanha_membro_usuario
+
+        # ===== USER NÃO PODE ENTRAR DUAS VEZES NA MESMA CAMPANHA =====
+        - addUniqueConstraint:
+            tableName: campanha_membros
+            columnNames: campanha_id, usuario_id
+            constraintName: uk_campanha_membro_campanha_user
+
+        # ===== ÍNDICES (PERFORMANCE) =====
+        - createIndex:
+            tableName: campanha_membros
+            indexName: idx_campanha_membro_campanha
+            columns:
+              - column:
+                  name: campanha_id
+
+        - createIndex:
+            tableName: campanha_membros
+            indexName: idx_campanha_membro_user
+            columns:
+              - column:
+                  name: usuario_id

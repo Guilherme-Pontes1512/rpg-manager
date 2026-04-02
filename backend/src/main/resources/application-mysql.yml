@@ -1,0 +1,9 @@
+spring:
+  config:
+    activate:
+      on-profile: mysql
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/rpg_manager
+    username: root
+    password: Kaguya10.
