@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 
 public record PersonagemDto(
         Long id,
+        @NotNull Long campanhaId,
         @NotBlank String nome,
         String historia,
         String aparencia,

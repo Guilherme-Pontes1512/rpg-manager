@@ -4,6 +4,6 @@ spring:
       on-profile: mysql
 
   datasource:
-    url: jdbc:mysql://localhost:3306/rpg_manager
-    username: root
-    password: Kaguya10.
+    url: ${MYSQL_URL:jdbc:mysql://localhost:3306/rpg_manager?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Sao_Paulo}
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:}

@@ -28,11 +28,11 @@ public class Personagem {
     private String nome;
 
     @Lob
-    @Column
+    @Column(columnDefinition = "text")
     private String historia;
 
     @Lob
-    @Column
+    @Column(columnDefinition = "text")
     private String aparencia;
 
     @Column(name = "image_url")
@@ -43,6 +43,6 @@ public class Personagem {
     private PersonagemStatusEnum status;
 
     @Lob
-    @Column(name = "dados_ficha_json", columnDefinition = "json")
+    @Column(name = "dados_ficha_json", columnDefinition = "longtext")
     private String dadosFichaJson;
 }

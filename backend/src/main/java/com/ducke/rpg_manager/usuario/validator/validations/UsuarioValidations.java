@@ -12,7 +12,19 @@ public class UsuarioValidations {
 
     public void validarEmailUnico(String email) {
         if (usuarioRepository.existsByEmail(email)) {
-            throw new IllegalArgumentException("O email já está em uso.");
+            throw new IllegalArgumentException("O email ja esta em uso.");
+        }
+    }
+
+    public void validarUsernameUnico(String username) {
+        if (usuarioRepository.existsByUsername(username)) {
+            throw new IllegalArgumentException("O nome de usuario ja esta em uso.");
+        }
+    }
+
+    public void validarConfirmacaoSenha(String senha, String confirmarSenha) {
+        if (!senha.equals(confirmarSenha)) {
+            throw new IllegalArgumentException("A confirmacao de senha nao confere.");
         }
     }
 }

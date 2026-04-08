@@ -1,7 +1,9 @@
 package com.ducke.rpg_manager.usuario.controller;
 
-import com.ducke.rpg_manager.usuario.dtos.UsuarioDto;
+import com.ducke.rpg_manager.usuario.dtos.AuthRegisterInput;
+import com.ducke.rpg_manager.usuario.dtos.AuthUserOutput;
 import com.ducke.rpg_manager.usuario.service.UsuarioService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,8 +19,7 @@ public class UsuarioController {
     private final UsuarioService usuarioService;
 
     @PostMapping
-    public ResponseEntity<UsuarioDto> cadastrarUsuario(@RequestBody UsuarioDto usuarioDto) {
-        UsuarioDto usuarioOutput = usuarioService.cadastrar(usuarioDto);
-        return ResponseEntity.ok(usuarioOutput);
+    public ResponseEntity<AuthUserOutput> cadastrarUsuario(@RequestBody @Valid AuthRegisterInput input) {
+        return ResponseEntity.ok(usuarioService.cadastrar(input));
     }
 }

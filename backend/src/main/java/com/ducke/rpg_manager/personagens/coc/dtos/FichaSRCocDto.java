@@ -31,8 +31,17 @@ public record FichaSRCocDto(
         @Valid
         List<PericiasSRCocDto> pericias,
 
+        String origem,
+        String origemHabilidade,
+        String origemBuff,
+        String origemPericias,
+        String retratoUrl,
+        String anotacoes,
+        String historico,
+        String aparencia,
+        String importantes,
+        String inventario,
         String armas,
-        String equipamentos,
-        String notas
+        String rituais
 ) {
 }

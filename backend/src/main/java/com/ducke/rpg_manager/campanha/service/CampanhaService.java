@@ -1,18 +1,19 @@
 package com.ducke.rpg_manager.campanha.service;
 
 import com.ducke.rpg_manager.campanha.dtos.CampanhaCreateInput;
-import com.ducke.rpg_manager.campanha.dtos.CampanhaOutput;
+import com.ducke.rpg_manager.campanha.dtos.CampanhaDetalheOutput;
+import com.ducke.rpg_manager.campanha.dtos.CampanhaResumoOutput;
 import com.ducke.rpg_manager.campanha.dtos.CampanhaSearchInput;
 import com.ducke.rpg_manager.campanha.entidade.Campanha;
-import com.ducke.rpg_manager.campanha_membros.dtos.CampanhaMembroInput;
-import com.ducke.rpg_manager.campanha_membros.entidade.CampanhaMembro;
 import com.ducke.rpg_manager.campanha.enumx.CampanhaPapelEnum;
 import com.ducke.rpg_manager.campanha.mapper.CampanhaMapper;
 import com.ducke.rpg_manager.campanha.repository.CampanhaCustomRepository;
 import com.ducke.rpg_manager.campanha.repository.CampanhaRepository;
+import com.ducke.rpg_manager.campanha_membros.dtos.CampanhaMembroInput;
+import com.ducke.rpg_manager.campanha_membros.dtos.CampanhaMembroOutput;
 import com.ducke.rpg_manager.campanha_membros.service.CampanhaMembrosService;
-import com.ducke.rpg_manager.usuario.entidade.Usuario;
 import com.ducke.rpg_manager.usuario.service.UsuarioAtualService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,57 +24,60 @@ import org.springframework.stereotype.Service;
 public class CampanhaService {
 
     private final CampanhaMapper campanhaMapper;
-
     private final CampanhaRepository campanhaRepository;
-
     private final CampanhaCustomRepository campanhaCustomRepository;
-
     private final CampanhaMembrosService campanhaMembrosService;
-
     private final UsuarioAtualService usuarioAtualService;
 
-    public CampanhaOutput criarCampanha(CampanhaCreateInput input) {
+    public CampanhaDetalheOutput criarCampanha(CampanhaCreateInput input) {
         Campanha entity = campanhaMapper.toEntity(input);
         campanhaRepository.save(entity);
 
         CampanhaPapelEnum papel = CampanhaPapelEnum.MESTRE;
         Long usuarioId = usuarioAtualService.getId();
-
         CampanhaMembroInput membroInput = new CampanhaMembroInput(entity.getId(), usuarioId, papel);
 
-        campanhaMembrosService.adicionarMembro(membroInput);
+        campanhaMembrosService.adicionarMembro(entity.getId(), membroInput);
 
-        return campanhaMapper.toOutput(entity, papel);
+        return obterCampanhaPorId(entity.getId());
     }
 
-    public Page<CampanhaOutput> listarCampanhas(Pageable pageable, CampanhaSearchInput input) {
+    public Page<CampanhaResumoOutput> listarCampanhas(Pageable pageable, CampanhaSearchInput input) {
         Long usuarioId = usuarioAtualService.getId();
-
         return campanhaCustomRepository.listarCampanhas(pageable, input, usuarioId);
     }
 
-    public CampanhaOutput obterCampanhaPorId(Long id) {
+    public CampanhaDetalheOutput obterCampanhaPorId(Long id) {
         Campanha entity = campanhaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Campanha não encontrada"));
+                .orElseThrow(() -> new EntityNotFoundException("Campanha nao encontrada"));
 
-        return campanhaMapper.toOutput(entity);
+        Long usuarioId = usuarioAtualService.getId();
+        CampanhaPapelEnum papel = campanhaMembrosService.obterPapelDoUsuario(id, usuarioId);
+        String mestreUsername = campanhaMembrosService.obterMestreUsername(id);
+        var membros = campanhaMembrosService.listarMembrosDaCampanha(id);
+
+        return campanhaMapper.toDetalheOutput(entity, papel, mestreUsername, membros);
     }
 
-    public CampanhaOutput atualizarCampanha(Long id, CampanhaCreateInput input) {
+    public CampanhaDetalheOutput atualizarCampanha(Long id, CampanhaCreateInput input) {
+        campanhaMembrosService.validarPermissaoDeMestre(id);
+
         Campanha entity = campanhaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Campanha não encontrada"));
+                .orElseThrow(() -> new EntityNotFoundException("Campanha nao encontrada"));
 
         campanhaMapper.updateEntity(entity, input);
-
         campanhaRepository.save(entity);
 
-        return campanhaMapper.toOutput(entity, CampanhaPapelEnum.MESTRE);
+        return obterCampanhaPorId(id);
     }
 
     public void deletarCampanha(Long id) {
+        campanhaMembrosService.validarPermissaoDeMestre(id);
+
         if (!campanhaRepository.existsById(id)) {
-            throw new RuntimeException("Campanha não encontrada");
+            throw new EntityNotFoundException("Campanha nao encontrada");
         }
+
         campanhaRepository.deleteById(id);
     }
 }

@@ -31,6 +31,7 @@ public class UsuarioDetailsService implements UserDetailsService {
         return org.springframework.security.core.userdetails.User
                 .withUsername(usuario.getEmail())
                 .password(usuario.getSenha())
+                .disabled(!usuario.isEmailVerificado())
                 .roles("USER")
                 .build();
     }

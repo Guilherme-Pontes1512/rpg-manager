@@ -1,7 +1,8 @@
 package com.ducke.rpg_manager.campanha;
 
 import com.ducke.rpg_manager.campanha.dtos.CampanhaCreateInput;
-import com.ducke.rpg_manager.campanha.dtos.CampanhaOutput;
+import com.ducke.rpg_manager.campanha.dtos.CampanhaDetalheOutput;
+import com.ducke.rpg_manager.campanha.dtos.CampanhaResumoOutput;
 import com.ducke.rpg_manager.campanha.dtos.CampanhaSearchInput;
 import com.ducke.rpg_manager.campanha.service.CampanhaService;
 import jakarta.validation.Valid;
@@ -22,8 +23,8 @@ public class CampanhaController {
     private final CampanhaService campanhaService;
 
     @PostMapping
-    public ResponseEntity<CampanhaOutput> criarCampanha(@RequestBody CampanhaCreateInput input) {
-        CampanhaOutput campanha = campanhaService.criarCampanha(input);
+    public ResponseEntity<CampanhaDetalheOutput> criarCampanha(@RequestBody @Valid CampanhaCreateInput input) {
+        CampanhaDetalheOutput campanha = campanhaService.criarCampanha(input);
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
@@ -34,21 +35,21 @@ public class CampanhaController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<CampanhaOutput>> listarCampanhas(@ModelAttribute CampanhaSearchInput input, Pageable pageable) {
-        Page<CampanhaOutput> campanha = campanhaService.listarCampanhas(pageable, input);
+    public ResponseEntity<Page<CampanhaResumoOutput>> listarCampanhas(@ModelAttribute CampanhaSearchInput input, Pageable pageable) {
+        Page<CampanhaResumoOutput> campanha = campanhaService.listarCampanhas(pageable, input);
 
         return ResponseEntity.ok(campanha);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CampanhaOutput> obterCampanhaPorId(@PathVariable Long id) {
-        CampanhaOutput campanha = campanhaService.obterCampanhaPorId(id);
+    public ResponseEntity<CampanhaDetalheOutput> obterCampanhaPorId(@PathVariable Long id) {
+        CampanhaDetalheOutput campanha = campanhaService.obterCampanhaPorId(id);
         return ResponseEntity.ok(campanha);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CampanhaOutput> atualizarCampanha(@PathVariable Long id, @RequestBody @Valid CampanhaCreateInput input) {
-        CampanhaOutput campanha = campanhaService.atualizarCampanha(id, input);
+    public ResponseEntity<CampanhaDetalheOutput> atualizarCampanha(@PathVariable Long id, @RequestBody @Valid CampanhaCreateInput input) {
+        CampanhaDetalheOutput campanha = campanhaService.atualizarCampanha(id, input);
         return ResponseEntity.ok(campanha);
     }
 

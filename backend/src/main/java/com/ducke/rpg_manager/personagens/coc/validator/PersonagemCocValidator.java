@@ -13,7 +13,7 @@ public class PersonagemCocValidator {
 
     public void validarCriarPersonagemCoc(FichaSRCocDto ficha) {
         validations.validarVida(ficha);
-        validations.validarAtributos();
-        validations.validarPericias();
+        validations.validarAtributos(ficha);
+        validations.validarPericias(ficha);
     }
 }

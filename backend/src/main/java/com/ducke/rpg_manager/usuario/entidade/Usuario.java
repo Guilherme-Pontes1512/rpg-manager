@@ -9,12 +9,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.Instant;
+
 @Entity
 @Table(
         name = "usuarios",
         uniqueConstraints = {
                 @UniqueConstraint(name = "uk_usuario_email", columnNames = "email"),
-                @UniqueConstraint(name = "uk_usuario_provider", columnNames = {"authProvider", "providerUserId"})
+                @UniqueConstraint(name = "uk_usuario_provider", columnNames = {"auth_provider", "provider_user_id"})
         }
 )
 @Setter
@@ -32,7 +34,7 @@ public class Usuario {
     private String nome;
 
     @NotBlank
-    @Column(nullable = false, unique = true, length = 30)
+    @Column(name = "username", nullable = false, unique = true, length = 30)
     private String username;
 
     @NotBlank
@@ -43,10 +45,16 @@ public class Usuario {
     @Column
     private String senha;
 
-    @Column(nullable = false)
+    @Column(name = "auth_provider", nullable = false)
     @Enumerated(EnumType.STRING)
     private AuthProviderEnum authProvider;
 
-    @Column
+    @Column(name = "provider_user_id")
     private String providerUserId;
+
+    @Column(name = "email_verificado", nullable = false, columnDefinition = "tinyint")
+    private boolean emailVerificado;
+
+    @Column(name = "email_verificado_em")
+    private Instant emailVerificadoEm;
 }

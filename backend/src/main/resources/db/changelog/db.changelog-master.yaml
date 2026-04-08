@@ -7,3 +7,9 @@ databaseChangeLog:
         file: db/changelog/changes/2026-2/003-create-campanha-membros.yaml
   - include:
         file: db/changelog/changes/2026-2/004-alter-usuarios-provider.yaml
+  - include:
+        file: db/changelog/changes/2026-2/005-create-personagens.yaml
+  - include:
+        file: db/changelog/changes/2026-2/006-email-verification.yaml
+  - include:
+        file: db/changelog/changes/2026-2/007-password-reset.yaml

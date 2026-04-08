@@ -30,7 +30,7 @@ public class Campanha {
     private String nome;
 
     @Lob
-    @Column
+    @Column(columnDefinition = "text")
     private String descricao;
 
     @NotNull

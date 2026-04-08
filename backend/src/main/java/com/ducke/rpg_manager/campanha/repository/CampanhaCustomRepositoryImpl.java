@@ -1,6 +1,6 @@
 package com.ducke.rpg_manager.campanha.repository;
 
-import com.ducke.rpg_manager.campanha.dtos.CampanhaOutput;
+import com.ducke.rpg_manager.campanha.dtos.CampanhaResumoOutput;
 import com.ducke.rpg_manager.campanha.dtos.CampanhaSearchInput;
 import com.ducke.rpg_manager.common.QueryBuilder;
 import com.ducke.rpg_manager.common.QueryBuilderUtils;
@@ -23,17 +23,19 @@ public class CampanhaCustomRepositoryImpl implements CampanhaCustomRepository {
     private final QueryBuilderUtils queryBuilderUtils;
 
     @Override
-    public Page<CampanhaOutput> listarCampanhas(Pageable pageable, CampanhaSearchInput input, Long usuarioId) {
+    public Page<CampanhaResumoOutput> listarCampanhas(Pageable pageable, CampanhaSearchInput input, Long usuarioId) {
         QueryBuilder query = new QueryBuilder();
 
-        query.add("SELECT new com.ducke.rpg_manager.campanha.dtos.CampanhaOutput(c.id, c.nome, c.descricao, c.sistema, cm.papel) ")
+        query.add("SELECT new com.ducke.rpg_manager.campanha.dtos.CampanhaResumoOutput(c.id, c.nome, c.descricao, c.sistema, cm.papel, mestre.username) ")
                 .add("FROM CampanhaMembro cm ")
                 .add("JOIN cm.campanha c ")
+                .add("JOIN c.membros mestreMembro ")
+                .add("JOIN mestreMembro.usuario mestre ")
                 .add(whereQuery(input, usuarioId))
                 .sortBy(List.of("c.nome", "c.sistema", "cm.papel"), true);
 
-        TypedQuery<CampanhaOutput> queryCreated = queryBuilderUtils.createQuery(query, CampanhaOutput.class, pageable);
-        List<CampanhaOutput> campanhas = queryCreated.getResultList();
+        TypedQuery<CampanhaResumoOutput> queryCreated = queryBuilderUtils.createQuery(query, CampanhaResumoOutput.class, pageable);
+        List<CampanhaResumoOutput> campanhas = queryCreated.getResultList();
         long total = countCampanhas(input, usuarioId);
 
         return new PageImpl<>(campanhas, pageable, total);
@@ -45,6 +47,7 @@ public class CampanhaCustomRepositoryImpl implements CampanhaCustomRepository {
         query.add("SELECT COUNT(c.id) ")
                 .add("FROM CampanhaMembro cm ")
                 .add("JOIN cm.campanha c ")
+                .add("JOIN c.membros mestreMembro ")
                 .add(whereQuery(input, usuarioId));
 
         TypedQuery<Long> queryCreated = queryBuilderUtils.createQuery(query, Long.class, null);
@@ -55,6 +58,7 @@ public class CampanhaCustomRepositoryImpl implements CampanhaCustomRepository {
     private QueryBuilder whereQuery(CampanhaSearchInput input, Long usuarioId) {
         QueryBuilder query = new QueryBuilder();
         query.add("WHERE 1 = 1 ")
+                .add("AND mestreMembro.papel = com.ducke.rpg_manager.campanha.enumx.CampanhaPapelEnum.MESTRE ")
                 .addStringUpperNotBlank("c.nome", input.termo(), LIKE, "termo")
                 .addEnum("c.sistema", input.sistema(), "sistema")
                 .addEnum("cm.papel", input.papel(), "papel")

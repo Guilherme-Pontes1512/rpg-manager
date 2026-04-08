@@ -1,11 +1,16 @@
 vaadin:
   launch-browser: true
 spring:
+  config:
+    import:
+      - optional:file:.env[.properties]
+      - optional:file:backend/.env[.properties]
+
   application:
     name: rpg-manager
 
   profiles:
-    active: dev, h2
+    active: dev, mysql
 
   jpa:
     open-in-view: false
@@ -23,3 +28,13 @@ logging:
   level:
     org.hibernate.SQL: debug
     # org.hibernate.orm.jdbc.bind: trace  # liga se quiser ver valores dos params
+
+app:
+  email:
+    enabled: true
+    host: smtp.gmail.com
+    port: 587
+    username: rpg.manager.web@gmail.com
+    password: ${SMTP_PASSWORD}
+    from: rpg.manager.web@gmail.com
+    frontend-base-url: http://localhost:5173
