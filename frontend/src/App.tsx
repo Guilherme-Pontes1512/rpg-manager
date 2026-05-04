@@ -95,6 +95,7 @@ function App() {
           onNavigate={setCurrentView}
           onToggleTheme={handleToggleTheme}
           theme={theme}
+          token={token}
           user={user}
         />
 

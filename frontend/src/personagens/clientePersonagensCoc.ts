@@ -1,4 +1,4 @@
-import type { PersonagemCoc } from './tiposPersonagemCoc'
+import type { PersonagemCoc, PersonagemCocResumo } from './tiposPersonagemCoc'
 
 async function personagemRequest<T>(token: string, path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
@@ -23,7 +23,11 @@ async function personagemRequest<T>(token: string, path: string, init?: RequestI
 
 export function listarPersonagensCoc(token: string, campanhaId?: number) {
   const query = campanhaId ? `?campanhaId=${campanhaId}` : ''
-  return personagemRequest<PersonagemCoc[]>(token, `/api/personagens/coc${query}`)
+  return personagemRequest<PersonagemCocResumo[]>(token, `/api/personagens/coc${query}`)
+}
+
+export function obterPersonagemCoc(token: string, personagemId: number) {
+  return personagemRequest<PersonagemCoc>(token, `/api/personagens/coc/${personagemId}`)
 }
 
 export function criarPersonagemCoc(token: string, input: PersonagemCoc) {

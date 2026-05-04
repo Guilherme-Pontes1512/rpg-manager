@@ -13,10 +13,25 @@ export type PericiaCoc = {
   valor: number
 }
 
+export type ArmaCoc = {
+  alcance: string
+  arma: string
+  dano: string
+  modificador?: string
+  municao?: string
+}
+
+export type RitualCoc = {
+  alvo: string
+  custo: string
+  descricao: string
+  ritual: string
+}
+
 export type FichaCoc = {
   anotacoes?: string
   aparencia?: string
-  armas?: string
+  armas?: ArmaCoc[]
   atributos: AtributosCoc
   historico?: string
   idade?: number
@@ -31,7 +46,7 @@ export type FichaCoc = {
   pericias: PericiaCoc[]
   pontosDeDestino: number
   retratoUrl?: string
-  rituais?: string
+  rituais?: RitualCoc[]
   sanidade: number
   sexo?: string
   vidaAtual: number
@@ -47,6 +62,13 @@ export type PersonagemCoc = {
   imageUrl?: string
   nome: string
   status?: 'ATIVO' | 'INATIVO' | 'MORTO'
+}
+
+export type PersonagemCocResumo = {
+  campanhaId: number
+  id?: number
+  imageUrl?: string
+  nome: string
 }
 
 export type PersonagemCocForm = {

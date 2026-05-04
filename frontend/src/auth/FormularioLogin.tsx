@@ -29,7 +29,6 @@ export function FormularioLogin({
       <header>
         <span className="panel-tag">Acesso</span>
         <h2>Login por email</h2>
-        <p>Use as mesmas credenciais que o backend valida via Basic Auth.</p>
       </header>
 
       <label>

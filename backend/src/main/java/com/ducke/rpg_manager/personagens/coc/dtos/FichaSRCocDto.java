@@ -41,7 +41,7 @@ public record FichaSRCocDto(
         String aparencia,
         String importantes,
         String inventario,
-        String armas,
-        String rituais
+        Object armas,
+        Object rituais
 ) {
 }

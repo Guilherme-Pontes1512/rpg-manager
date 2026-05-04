@@ -2,6 +2,7 @@ package com.ducke.rpg_manager.personagens.coc.mapper;
 
 import com.ducke.rpg_manager.personagens.coc.dtos.FichaSRCocDto;
 import com.ducke.rpg_manager.personagens.dtos.PersonagemDto;
+import com.ducke.rpg_manager.personagens.dtos.PersonagemResumoDto;
 import com.ducke.rpg_manager.personagens.entidade.Personagem;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,6 +28,9 @@ public interface PersonagemCocMapper {
     @Mapping(target = "campanhaId", source = "campanhaMembro.campanha.id")
     @Mapping(target = "dadosFichaJson", source = "dadosFichaJson")
     PersonagemDto toDto(Personagem personagem);
+
+    @Mapping(target = "campanhaId", source = "campanhaMembro.campanha.id")
+    PersonagemResumoDto toResumoDto(Personagem personagem);
 
     default String map(FichaSRCocDto ficha) {
         if (ficha == null) {

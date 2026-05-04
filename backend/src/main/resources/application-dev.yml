@@ -19,3 +19,6 @@ logging:
 vaadin:
   launch-browser: true
 
+app:
+  email:
+    enabled: true

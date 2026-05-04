@@ -12,6 +12,7 @@ import {
 } from './clienteCampanhas'
 import { FormularioCampanha } from './FormularioCampanha'
 import { ListaCampanhas } from './ListaCampanhas'
+import { TelaAcompanhamentoMestre } from './TelaAcompanhamentoMestre'
 import { useNotificacoes } from '../notificacoes/NotificacoesProvider'
 import { TelaPersonagemCoc } from '../personagens/TelaPersonagemCoc'
 import type { AuthUser } from '../auth'
@@ -27,7 +28,7 @@ type TelaCampanhasProps = {
   user: AuthUser
 }
 
-type CampaignViewMode = 'lista' | 'formulario' | 'personagens'
+type CampaignViewMode = 'lista' | 'formulario' | 'personagens' | 'acompanhamento'
 
 const formularioInicial: CampanhaFormulario = {
   nome: '',
@@ -97,7 +98,7 @@ export function TelaCampanhas({ token, user }: TelaCampanhasProps) {
   async function abrirPersonagensDaCampanha(campanhaId: number) {
     try {
       const detalhe = await obterCampanha(token, campanhaId)
-      setViewMode('personagens')
+      setViewMode(detalhe.papel === 'MESTRE' ? 'acompanhamento' : 'personagens')
       setCampanhaSelecionadaId(campanhaId)
       setCampanhaAtual(detalhe)
       setForm({
@@ -220,6 +221,7 @@ export function TelaCampanhas({ token, user }: TelaCampanhasProps) {
   const canEdit = campanhaAtual ? campanhaAtual.papel === 'MESTRE' : true
   const isFormView = viewMode === 'formulario'
   const isPersonagensView = viewMode === 'personagens'
+  const isAcompanhamentoView = viewMode === 'acompanhamento'
   const membroAtual = campanhaAtual?.membros.find((membro) => membro.usuarioId === user.id)
 
   function voltarParaLista() {
@@ -233,7 +235,7 @@ export function TelaCampanhas({ token, user }: TelaCampanhasProps) {
           <h1>Campanhas</h1>
         </div>
         <div className="campaigns-top-actions">
-          {!isFormView && !isPersonagensView ? (
+          {!isFormView && !isPersonagensView && !isAcompanhamentoView ? (
             <button className="primary-button" type="button" onClick={iniciarNovaCampanha}>
               Criar nova campanha
             </button>
@@ -241,10 +243,17 @@ export function TelaCampanhas({ token, user }: TelaCampanhasProps) {
         </div>
       </header>
 
-      {isPersonagensView && campanhaAtual ? (
+      {isAcompanhamentoView && campanhaAtual ? (
+        <TelaAcompanhamentoMestre
+          campanhaId={campanhaAtual.id}
+          onBack={voltarParaLista}
+          token={token}
+        />
+      ) : isPersonagensView && campanhaAtual ? (
         <TelaPersonagemCoc
           backLabel="Voltar para campanhas"
           campanhaId={campanhaAtual.id}
+          campanhaNome={campanhaAtual.nome}
           canCreate={membroAtual?.papel === 'JOGADOR'}
           onBack={voltarParaLista}
           token={token}

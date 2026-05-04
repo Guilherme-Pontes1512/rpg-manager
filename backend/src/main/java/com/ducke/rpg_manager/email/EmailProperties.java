@@ -14,7 +14,11 @@ public record EmailProperties(
 ) {
 
     public boolean smtpConfigured() {
-        return enabled && host != null && !host.isBlank() && from != null && !from.isBlank();
+        boolean hasServer = enabled && host != null && !host.isBlank() && from != null && !from.isBlank();
+        boolean usernameBlank = username == null || username.isBlank();
+        boolean passwordBlank = password == null || password.isBlank();
+
+        return hasServer && (usernameBlank || !passwordBlank);
     }
 
     public int resolvedPort() {

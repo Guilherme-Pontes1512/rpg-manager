@@ -23,7 +23,6 @@ export function FormularioCadastro({
       <header>
         <span className="panel-tag">Nova conta</span>
         <h2>Cadastro rapido</h2>
-        <p>Nome, username e email sao tratados de forma explicita.</p>
       </header>
 
       <label>

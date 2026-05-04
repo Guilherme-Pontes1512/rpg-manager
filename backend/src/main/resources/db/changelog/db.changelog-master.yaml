@@ -13,3 +13,5 @@ databaseChangeLog:
         file: db/changelog/changes/2026-2/006-email-verification.yaml
   - include:
         file: db/changelog/changes/2026-2/007-password-reset.yaml
+  - include:
+        file: db/changelog/changes/2026-2/008-create-campanha-documentos.yaml

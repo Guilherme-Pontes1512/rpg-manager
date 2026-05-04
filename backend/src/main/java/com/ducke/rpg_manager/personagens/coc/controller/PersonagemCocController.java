@@ -2,6 +2,7 @@ package com.ducke.rpg_manager.personagens.coc.controller;
 
 import com.ducke.rpg_manager.personagens.coc.service.PersonagemCocService;
 import com.ducke.rpg_manager.personagens.dtos.PersonagemDto;
+import com.ducke.rpg_manager.personagens.dtos.PersonagemResumoDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +31,7 @@ public class PersonagemCocController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PersonagemDto>> listarPersonagensCoc(@RequestParam(required = false) Long campanhaId) {
+    public ResponseEntity<List<PersonagemResumoDto>> listarPersonagensCoc(@RequestParam(required = false) Long campanhaId) {
         return ResponseEntity.ok(cocService.listarPersonagensCoc(campanhaId));
     }
 

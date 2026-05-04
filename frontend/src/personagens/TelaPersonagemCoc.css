@@ -56,9 +56,14 @@
 .coc-character-grid {
   display: grid;
   gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
 .coc-character-card {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
   border: 1px solid var(--surface-border);
   border-radius: 20px;
   padding: 18px;
@@ -81,6 +86,38 @@
 .coc-character-card strong,
 .coc-character-card span {
   display: block;
+}
+
+.coc-character-card-portrait {
+  width: 88px;
+  height: 88px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 20px;
+  background: linear-gradient(180deg, #d7d7d7, #bcbcbc);
+  border: 1px solid rgba(120, 120, 120, 0.25);
+  color: #7b7b7b;
+}
+
+.coc-character-card-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.coc-character-card-portrait svg {
+  width: 52px;
+  height: 52px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+}
+
+.coc-character-card-body {
+  min-width: 0;
 }
 
 .coc-character-card span,
@@ -489,11 +526,110 @@
   padding: 16px 18px;
 }
 
+.coc-weapons-summary,
+.coc-rituals-summary,
+.coc-weapon-card-header,
+.coc-ritual-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.coc-weapons-summary span,
+.coc-rituals-summary span,
+.coc-weapon-card-header span,
+.coc-ritual-card-header span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 .coc-note-section textarea {
   border: 0;
   border-top: 1px solid var(--surface-border);
   border-radius: 0;
   min-height: 150px;
+  resize: vertical;
+}
+
+.coc-weapons-content,
+.coc-rituals-content {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border-top: 1px solid var(--surface-border);
+}
+
+.coc-add-weapon-button,
+.coc-add-ritual-button {
+  width: 38px;
+  height: 38px;
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--input-border);
+  border-radius: 50%;
+  background: var(--input-bg);
+  color: var(--icon-button-text);
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.coc-add-weapon-button:hover,
+.coc-add-weapon-button:focus-visible,
+.coc-add-ritual-button:hover,
+.coc-add-ritual-button:focus-visible {
+  background: var(--icon-button-bg);
+}
+
+.coc-add-weapon-button svg,
+.coc-add-ritual-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.coc-weapon-card,
+.coc-ritual-card {
+  border: 1px solid var(--surface-border);
+  border-radius: 18px;
+  background: var(--surface-bg);
+  overflow: hidden;
+}
+
+.coc-weapon-card-header,
+.coc-ritual-card-header {
+  padding: 12px 14px;
+}
+
+.coc-weapon-card-header::marker,
+.coc-ritual-card-header::marker {
+  color: var(--muted);
+}
+
+.coc-weapon-fields,
+.coc-ritual-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding: 0 14px 14px;
+}
+
+.coc-weapon-fields label,
+.coc-ritual-fields label {
+  display: grid;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.coc-weapon-fields label:first-child,
+.coc-ritual-description {
+  grid-column: 1 / -1;
+}
+
+.coc-ritual-description textarea {
+  min-height: 180px;
   resize: vertical;
 }
 
@@ -546,6 +682,24 @@
 }
 
 @media (max-width: 760px) {
+  .coc-character-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .coc-weapon-fields,
+  .coc-ritual-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .coc-character-card {
+    grid-template-columns: 72px minmax(0, 1fr);
+  }
+
+  .coc-character-card-portrait {
+    width: 72px;
+    height: 72px;
+  }
+
   .coc-attribute-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

@@ -1,5 +1,6 @@
 import type { AuthUser } from '../auth'
 import { BotaoTema, type ThemeMode } from '../theme/BotaoTema'
+import { NotificacoesDocumentos } from './NotificacoesDocumentos'
 
 type AppView = 'campanhas' | 'personagens' | 'sessoes'
 
@@ -9,6 +10,7 @@ type BarraMenuSuperiorProps = {
   onNavigate: (view: AppView) => void
   onToggleTheme: () => void
   theme: ThemeMode
+  token: string
   user: AuthUser
 }
 
@@ -24,6 +26,7 @@ export function BarraMenuSuperior({
   onNavigate,
   onToggleTheme,
   theme,
+  token,
   user,
 }: BarraMenuSuperiorProps) {
   return (
@@ -48,6 +51,7 @@ export function BarraMenuSuperior({
       </nav>
 
       <div className="top-menu-actions">
+        <NotificacoesDocumentos token={token} />
         <BotaoTema onToggle={onToggleTheme} theme={theme} />
         <button className="ghost-button" type="button" onClick={onLogout}>
           Sair

@@ -1,19 +1,31 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
-import { faDiceD20, faTrashCan } from '@fortawesome/free-solid-svg-icons'
+import { faDiceD20, faPlus, faTrashCan } from '@fortawesome/free-solid-svg-icons'
+import { listarCampanhas } from '../campanhas/clienteCampanhas'
 import { useNotificacoes } from '../notificacoes/NotificacoesProvider'
 import {
   atualizarPersonagemCoc,
   criarPersonagemCoc,
   excluirPersonagemCoc,
   listarPersonagensCoc,
+  obterPersonagemCoc,
 } from './clientePersonagensCoc'
-import type { AtributosCoc, FichaCoc, PericiaCoc, PersonagemCoc, PersonagemCocForm } from './tiposPersonagemCoc'
+import type {
+  ArmaCoc,
+  AtributosCoc,
+  FichaCoc,
+  PericiaCoc,
+  PersonagemCoc,
+  PersonagemCocForm,
+  PersonagemCocResumo,
+  RitualCoc,
+} from './tiposPersonagemCoc'
 import './TelaPersonagemCoc.css'
 
 type TelaPersonagemCocProps = {
   backLabel?: string
   campanhaId?: number
+  campanhaNome?: string
   canCreate?: boolean
   onBack?: () => void
   token: string
@@ -35,7 +47,7 @@ type OrigemCoc = {
 }
 
 type SecaoColapsavel = {
-  field: keyof Pick<FichaCoc, 'armas' | 'historico' | 'importantes' | 'inventario' | 'rituais' | 'aparencia' | 'anotacoes'>
+  field: keyof Pick<FichaCoc, 'historico' | 'importantes' | 'inventario' | 'aparencia' | 'anotacoes'>
   label: string
 }
 
@@ -150,9 +162,9 @@ const SECOES_COLAPSAVEIS: SecaoColapsavel[] = [
   { field: "aparencia", label: 'Aparência' },
   { field: 'importantes', label: 'Importantes' },
   { field: 'inventario', label: 'Inventário' },
-  { field: 'armas', label: 'Armas' },
-  { field: 'rituais', label: 'Rituais' },
 ]
+
+const ALPHANUMERIC_PATTERN = '[A-Za-zÀ-ÖØ-öø-ÿ0-9 ]*'
 
 function criarFichaInicial(): FichaCoc {
   return {
@@ -164,8 +176,10 @@ function criarFichaInicial(): FichaCoc {
       presenca: 50,
       vontade: 50,
     },
+    armas: [],
     pericias: PERICIAS_INICIAIS.map((pericia) => ({ ...pericia })),
     pontosDeDestino: 0,
+    rituais: [],
     sanidade: 0,
     vidaAtual: 10,
     vidaMaxima: 10,
@@ -184,6 +198,7 @@ function criarFormularioInicial(campanhaId = ''): PersonagemCocForm {
 export function TelaPersonagemCoc({
   backLabel = 'Voltar',
   campanhaId,
+  campanhaNome,
   canCreate = true,
   onBack,
   token,
@@ -191,8 +206,9 @@ export function TelaPersonagemCoc({
   const { notify } = useNotificacoes()
   const campanhaIdFixo = campanhaId ? String(campanhaId) : ''
   const [form, setForm] = useState<PersonagemCocForm>(() => criarFormularioInicial(campanhaIdFixo))
+  const [campanhasPorId, setCampanhasPorId] = useState<Record<number, string>>({})
   const [loading, setLoading] = useState(true)
-  const [personagens, setPersonagens] = useState<PersonagemCoc[]>([])
+  const [personagens, setPersonagens] = useState<PersonagemCocResumo[]>([])
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [saving, setSaving] = useState(false)
   const [vidaMaximaEmEdicao, setVidaMaximaEmEdicao] = useState<string | null>(null)
@@ -222,13 +238,31 @@ export function TelaPersonagemCoc({
     setLoading(true)
 
     try {
-      const lista = await listarPersonagensCoc(token, campanhaId)
+      const [lista, campanhas] = await Promise.all([
+        listarPersonagensCoc(token, campanhaId),
+        campanhaId ? Promise.resolve([]) : listarCampanhas(token),
+      ])
+
       setPersonagens(lista)
+      setCampanhasPorId(
+        campanhas.reduce<Record<number, string>>((acc, campanha) => {
+          acc[campanha.id] = campanha.nome
+          return acc
+        }, {}),
+      )
     } catch (caughtError) {
       notify('error', extrairErro(caughtError, 'Nao foi possivel carregar personagens.'))
     } finally {
       setLoading(false)
     }
+  }
+
+  function obterNomeCampanhaPersonagem(personagem: PersonagemCocResumo) {
+    if (campanhaId && personagem.campanhaId === campanhaId) {
+      return campanhaNome ?? campanhasPorId[personagem.campanhaId] ?? 'Campanha sem nome'
+    }
+
+    return campanhasPorId[personagem.campanhaId] ?? 'Campanha sem nome'
   }
 
   function carregarNoFormulario(personagem: PersonagemCoc) {
@@ -246,12 +280,32 @@ export function TelaPersonagemCoc({
           personagem.dadosFichaJson.pericias?.length > 0
             ? normalizarPericias(personagem.dadosFichaJson.pericias)
             : fichaPadrao.pericias,
+        armas: normalizarArmas(personagem.dadosFichaJson.armas),
+        rituais: normalizarRituais(personagem.dadosFichaJson.rituais),
       },
       id: personagem.id,
       imageUrl: personagem.imageUrl ?? '',
       nome: personagem.nome,
     })
     setViewMode('formulario')
+  }
+
+  async function abrirFichaPersonagem(personagemId?: number) {
+    if (!personagemId) {
+      notify('error', 'Nao foi possivel identificar o personagem selecionado.')
+      return
+    }
+
+    setSaving(true)
+
+    try {
+      const personagem = await obterPersonagemCoc(token, personagemId)
+      carregarNoFormulario(personagem)
+    } catch (caughtError) {
+      notify('error', extrairErro(caughtError, 'Nao foi possivel abrir a ficha do personagem.'))
+    } finally {
+      setSaving(false)
+    }
   }
 
   function iniciarNovaFicha() {
@@ -435,6 +489,89 @@ export function TelaPersonagemCoc({
     }))
   }
 
+  function adicionarArma() {
+    setForm((current) => ({
+      ...current,
+      ficha: {
+        ...current.ficha,
+        armas: [
+          ...(current.ficha.armas ?? []),
+          {
+            alcance: '',
+            arma: '',
+            dano: '',
+            modificador: '',
+            municao: '',
+          },
+        ],
+      },
+    }))
+  }
+
+  function atualizarArma(index: number, field: keyof ArmaCoc, value: string) {
+    const valor = normalizarAlfanumerico(value)
+    setForm((current) => ({
+      ...current,
+      ficha: {
+        ...current.ficha,
+        armas: (current.ficha.armas ?? []).map((arma, armaIndex) =>
+          armaIndex === index ? { ...arma, [field]: valor } : arma,
+        ),
+      },
+    }))
+  }
+
+  function removerArma(index: number) {
+    setForm((current) => ({
+      ...current,
+      ficha: {
+        ...current.ficha,
+        armas: (current.ficha.armas ?? []).filter((_, armaIndex) => armaIndex !== index),
+      },
+    }))
+  }
+
+  function adicionarRitual() {
+    setForm((current) => ({
+      ...current,
+      ficha: {
+        ...current.ficha,
+        rituais: [
+          ...(current.ficha.rituais ?? []),
+          {
+            alvo: '',
+            custo: '',
+            descricao: '',
+            ritual: '',
+          },
+        ],
+      },
+    }))
+  }
+
+  function atualizarRitual(index: number, field: keyof RitualCoc, value: string) {
+    const valor = field === 'descricao' ? normalizarTextoAlfanumerico(value) : normalizarAlfanumerico(value)
+    setForm((current) => ({
+      ...current,
+      ficha: {
+        ...current.ficha,
+        rituais: (current.ficha.rituais ?? []).map((ritual, ritualIndex) =>
+          ritualIndex === index ? { ...ritual, [field]: valor } : ritual,
+        ),
+      },
+    }))
+  }
+
+  function removerRitual(index: number) {
+    setForm((current) => ({
+      ...current,
+      ficha: {
+        ...current.ficha,
+        rituais: (current.ficha.rituais ?? []).filter((_, ritualIndex) => ritualIndex !== index),
+      },
+    }))
+  }
+
   function atualizarOrigem(nome: string) {
     const origem = ORIGENS.find((item) => item.nome === nome)
     setForm((current) => ({
@@ -503,10 +640,20 @@ export function TelaPersonagemCoc({
                 key={personagem.id}
                 className={form.id === personagem.id ? 'coc-character-card active' : 'coc-character-card'}
                 type="button"
-                onClick={() => carregarNoFormulario(personagem)}
+                onClick={() => void abrirFichaPersonagem(personagem.id)}
+                disabled={saving}
               >
+                <div className="coc-character-card-portrait" aria-hidden="true">
+                  {obterRetratoPersonagem(personagem) ? (
+                    <img src={obterRetratoPersonagem(personagem)} alt="" />
+                  ) : (
+                    <SilhuetaPersonagemIcon />
+                  )}
+                </div>
+                <div className="coc-character-card-body">
                 <strong>{personagem.nome}</strong>
-                <span>Campanha #{personagem.campanhaId}</span>
+                <span>{obterNomeCampanhaPersonagem(personagem)}</span>
+                </div>
               </button>
             ))}
           </div>
@@ -744,6 +891,171 @@ export function TelaPersonagemCoc({
                     />
                   </details>
                 ))}
+                <details className="coc-note-section coc-weapons-section" open>
+                  <summary className="coc-weapons-summary">
+                    <span>Armas</span>
+                    <button
+                        className="coc-add-weapon-button"
+                        type="button"
+                        onClick={(event) => {
+                          event.preventDefault()
+                          adicionarArma()
+                        }}
+                        aria-label="Adicionar arma"
+                        title="Adicionar arma"
+                    >
+                      <IconeFa path={faPlus.icon[4]} width={faPlus.icon[0]} height={faPlus.icon[1]} />
+                    </button>
+                  </summary>
+                  <div className="coc-weapons-content">
+                    {(form.ficha.armas ?? []).length === 0 ? (
+                        <p className="panel-hint">Nenhuma arma cadastrada.</p>
+                    ) : null}
+                    {(form.ficha.armas ?? []).map((arma, index) => (
+                        <details className="coc-weapon-card" key={index} open>
+                          <summary className="coc-weapon-card-header">
+                            <span>{arma.arma || `Arma ${index + 1}`}</span>
+                            <button
+                                className="coc-delete-button"
+                                type="button"
+                                onClick={(event) => {
+                                  event.preventDefault()
+                                  removerArma(index)
+                                }}
+                                aria-label={`Remover arma ${index + 1}`}
+                                title="Remover arma"
+                            >
+                              <IconeFa path={faTrashCan.icon[4]} width={faTrashCan.icon[0]} height={faTrashCan.icon[1]} />
+                            </button>
+                          </summary>
+                          <div className="coc-weapon-fields">
+                            <label>
+                              Arma
+                              <input
+                                  required
+                                  pattern={ALPHANUMERIC_PATTERN}
+                                  value={arma.arma}
+                                  onChange={(event) => atualizarArma(index, 'arma', event.target.value)}
+                              />
+                            </label>
+                            <label>
+                              Alcance
+                              <input
+                                  required
+                                  pattern={ALPHANUMERIC_PATTERN}
+                                  value={arma.alcance}
+                                  onChange={(event) => atualizarArma(index, 'alcance', event.target.value)}
+                              />
+                            </label>
+                            <label>
+                              Dano
+                              <input
+                                  required
+                                  pattern={ALPHANUMERIC_PATTERN}
+                                  value={arma.dano}
+                                  onChange={(event) => atualizarArma(index, 'dano', event.target.value)}
+                              />
+                            </label>
+                            <label>
+                              Munição
+                              <input
+                                  pattern={ALPHANUMERIC_PATTERN}
+                                  value={arma.municao ?? ''}
+                                  onChange={(event) => atualizarArma(index, 'municao', event.target.value)}
+                              />
+                            </label>
+                            <label>
+                              Modificador
+                              <input
+                                  pattern={ALPHANUMERIC_PATTERN}
+                                  value={arma.modificador ?? ''}
+                                  onChange={(event) => atualizarArma(index, 'modificador', event.target.value)}
+                              />
+                            </label>
+                          </div>
+                        </details>
+                    ))}
+                  </div>
+                </details>
+                <details className="coc-note-section coc-rituals-section" open>
+                  <summary className="coc-rituals-summary">
+                    <span>Rituais</span>
+                    <button
+                        className="coc-add-ritual-button"
+                        type="button"
+                        onClick={(event) => {
+                          event.preventDefault()
+                          adicionarRitual()
+                        }}
+                        aria-label="Adicionar ritual"
+                        title="Adicionar ritual"
+                    >
+                      <IconeFa path={faPlus.icon[4]} width={faPlus.icon[0]} height={faPlus.icon[1]} />
+                    </button>
+                  </summary>
+                  <div className="coc-rituals-content">
+                    {(form.ficha.rituais ?? []).length === 0 ? (
+                        <p className="panel-hint">Nenhum ritual cadastrado.</p>
+                    ) : null}
+                    {(form.ficha.rituais ?? []).map((ritual, index) => (
+                        <details className="coc-ritual-card" key={index} open>
+                          <summary className="coc-ritual-card-header">
+                            <span>{ritual.ritual || `Ritual ${index + 1}`}</span>
+                            <button
+                                className="coc-delete-button"
+                                type="button"
+                                onClick={(event) => {
+                                  event.preventDefault()
+                                  removerRitual(index)
+                                }}
+                                aria-label={`Remover ritual ${index + 1}`}
+                                title="Remover ritual"
+                            >
+                              <IconeFa path={faTrashCan.icon[4]} width={faTrashCan.icon[0]} height={faTrashCan.icon[1]} />
+                            </button>
+                          </summary>
+                          <div className="coc-ritual-fields">
+                            <label>
+                              Ritual
+                              <input
+                                  required
+                                  pattern={ALPHANUMERIC_PATTERN}
+                                  value={ritual.ritual}
+                                  onChange={(event) => atualizarRitual(index, 'ritual', event.target.value)}
+                              />
+                            </label>
+                            <label>
+                              Custo
+                              <input
+                                  required
+                                  pattern={ALPHANUMERIC_PATTERN}
+                                  value={ritual.custo}
+                                  onChange={(event) => atualizarRitual(index, 'custo', event.target.value)}
+                              />
+                            </label>
+                            <label>
+                              Alvo
+                              <input
+                                  required
+                                  pattern={ALPHANUMERIC_PATTERN}
+                                  value={ritual.alvo}
+                                  onChange={(event) => atualizarRitual(index, 'alvo', event.target.value)}
+                              />
+                            </label>
+                            <label className="coc-ritual-description">
+                              Descrição
+                              <textarea
+                                  required
+                                  rows={7}
+                                  value={ritual.descricao}
+                                  onChange={(event) => atualizarRitual(index, 'descricao', event.target.value)}
+                              />
+                            </label>
+                          </div>
+                        </details>
+                    ))}
+                  </div>
+                </details>
               </aside>
             </div>
 
@@ -779,8 +1091,24 @@ function normalizarNumeroTresDigitos(value: string) {
   return digits ? Number(digits) : 0
 }
 
+function normalizarAlfanumerico(value: string) {
+  return value.replace(/[^A-Za-zÀ-ÖØ-öø-ÿ0-9 ]/g, '')
+}
+
+function normalizarTextoAlfanumerico(value: string) {
+  return value.replace(/[^A-Za-zÀ-ÖØ-öø-ÿ0-9 \r\n]/g, '')
+}
+
 function rolarD100() {
   return Math.floor(Math.random() * 100) + 1
+}
+
+function obterRetratoPersonagem(personagem: PersonagemCocResumo | PersonagemCoc) {
+  if ('dadosFichaJson' in personagem) {
+    return personagem.dadosFichaJson.retratoUrl || personagem.imageUrl || ''
+  }
+
+  return personagem.imageUrl || ''
 }
 
 function DadoPoliedricoIcon() {
@@ -806,11 +1134,76 @@ function IconeFa({ path, width, height }: { path: string | string[]; width: numb
   )
 }
 
+function SilhuetaPersonagemIcon() {
+  return (
+    <svg viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+      <circle cx="32" cy="22" r="12" />
+      <path d="M12 56c0-11.046 8.954-20 20-20s20 8.954 20 20" />
+    </svg>
+  )
+}
+
 function normalizarPericias(pericias: PericiaCoc[]) {
   return pericias.map((pericia) => ({
     ...pericia,
     base: pericia.base ?? PERICIAS_INICIAIS.find(({ nome }) => nome === pericia.nome)?.base ?? 0,
   }))
+}
+
+function normalizarArmas(armas: unknown): ArmaCoc[] {
+  if (typeof armas === 'string' && armas.trim()) {
+    return [
+      {
+        alcance: '',
+        arma: normalizarAlfanumerico(armas),
+        dano: '',
+        modificador: '',
+        municao: '',
+      },
+    ]
+  }
+
+  if (!Array.isArray(armas)) {
+    return []
+  }
+
+  return armas.map((arma) => {
+    const entrada = arma as Partial<ArmaCoc>
+    return {
+      alcance: normalizarAlfanumerico(entrada.alcance ?? ''),
+      arma: normalizarAlfanumerico(entrada.arma ?? ''),
+      dano: normalizarAlfanumerico(entrada.dano ?? ''),
+      modificador: normalizarAlfanumerico(entrada.modificador ?? ''),
+      municao: normalizarAlfanumerico(entrada.municao ?? ''),
+    }
+  })
+}
+
+function normalizarRituais(rituais: unknown): RitualCoc[] {
+  if (typeof rituais === 'string' && rituais.trim()) {
+    return [
+      {
+        alvo: '',
+        custo: '',
+        descricao: normalizarTextoAlfanumerico(rituais),
+        ritual: '',
+      },
+    ]
+  }
+
+  if (!Array.isArray(rituais)) {
+    return []
+  }
+
+  return rituais.map((ritual) => {
+    const entrada = ritual as Partial<RitualCoc>
+    return {
+      alvo: normalizarAlfanumerico(entrada.alvo ?? ''),
+      custo: normalizarAlfanumerico(entrada.custo ?? ''),
+      descricao: normalizarTextoAlfanumerico(entrada.descricao ?? ''),
+      ritual: normalizarAlfanumerico(entrada.ritual ?? ''),
+    }
+  })
 }
 
 function extrairErro(caughtError: unknown, fallback: string) {
