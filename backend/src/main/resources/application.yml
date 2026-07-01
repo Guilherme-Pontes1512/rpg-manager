@@ -1,5 +1,6 @@
-vaadin:
-  launch-browser: true
+server:
+  port: ${PORT:8080}
+
 spring:
   config:
     import:
@@ -31,10 +32,10 @@ logging:
 
 app:
   email:
-    enabled: true
+    enabled: ${APP_EMAIL_ENABLED:true}
     host: smtp.gmail.com
     port: 587
     username: rpg.manager.web@gmail.com
-    password: ${SMTP_PASSWORD}
+    password: ${SMTP_PASSWORD:}
     from: rpg.manager.web@gmail.com
-    frontend-base-url: http://localhost:5173
+    frontend-base-url: ${FRONTEND_BASE_URL:http://localhost:5173}

@@ -39,7 +39,7 @@ public class CampanhaDocumento {
     private Long tamanhoBytes;
 
     @Lob
-    @Column(nullable = false, columnDefinition = "blob")
+    @Column(nullable = false, length = 65535)
     private byte[] conteudo;
 
     @Column(name = "enviado_em", nullable = false)

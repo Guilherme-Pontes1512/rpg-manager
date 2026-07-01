@@ -1,0 +1,36 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: rpg-manager-mysql
+    environment:
+      MYSQL_DATABASE: rpg_manager
+      MYSQL_ROOT_PASSWORD: rpg10
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -prpg10"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+    container_name: rpg-manager-backend
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: mysql
+      MYSQL_URL: jdbc:mysql://mysql:3306/rpg_manager?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Sao_Paulo
+      MYSQL_USER: root
+      MYSQL_PASSWORD: rpg10
+      APP_EMAIL_ENABLED: "false"
+      FRONTEND_BASE_URL: http://localhost:5173
+    ports:
+      - "8080:8080"
+
+volumes:
+  mysql-data:
