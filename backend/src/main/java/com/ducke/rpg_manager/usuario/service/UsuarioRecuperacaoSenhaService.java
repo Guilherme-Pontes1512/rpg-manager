@@ -56,6 +56,10 @@ public class UsuarioRecuperacaoSenhaService {
 
         Usuario usuario = recuperacao.getUsuario();
         usuario.setSenha(senhaCodificada);
+        if (!usuario.isEmailVerificado()) {
+            usuario.setEmailVerificado(true);
+            usuario.setEmailVerificadoEm(Instant.now());
+        }
         recuperacao.setUsedAt(Instant.now());
 
         usuarioRepository.save(usuario);

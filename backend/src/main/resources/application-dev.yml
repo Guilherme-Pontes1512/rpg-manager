@@ -16,9 +16,6 @@ logging:
   level:
     org.hibernate.sql: DEBUG
 
-vaadin:
-  launch-browser: true
-
 app:
   email:
     enabled: true

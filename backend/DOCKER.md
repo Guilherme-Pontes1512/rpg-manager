@@ -9,11 +9,13 @@ docker compose up --build
 ```
 
 A API ficara em `http://localhost:8080`.
+O frontend ficara em `http://localhost:5173`.
 
 O `docker-compose.yml` sobe:
 
 - `mysql`: banco MySQL local com volume persistente.
 - `backend`: aplicacao Spring Boot com perfil `mysql`.
+- `frontend`: aplicacao React/Vite servida pelo Node em modo dev.
 
 Para rodar em segundo plano:
 
@@ -50,6 +52,8 @@ docker compose up --build
 ## Observacoes
 
 Dentro do Docker, o backend deve usar o host `mysql`, nao `localhost`, porque cada container tem sua propria rede.
+
+O frontend compartilha a rede do backend para manter o proxy do Vite apontando para `localhost:8080`.
 
 Se voce iniciou containers manualmente pelo Docker Desktop, prefira recriar pelo Compose para garantir que backend e banco estejam na mesma rede:
 

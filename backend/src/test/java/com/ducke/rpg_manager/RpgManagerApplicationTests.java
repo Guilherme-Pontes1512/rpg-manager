@@ -145,6 +145,9 @@ class RpgManagerApplicationTests {
     @Test
     void devePermitirRecuperarSenha() throws Exception {
         Usuario usuario = criarUsuarioLocal("investigador", "investigador@example.com", "senha123");
+        usuario.setEmailVerificado(false);
+        usuario.setEmailVerificadoEm(null);
+        usuarioRepository.save(usuario);
 
         mockMvc.perform(post("/api/auth/forgot-password")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -175,7 +178,8 @@ class RpgManagerApplicationTests {
         mockMvc.perform(get("/api/auth/me")
                         .with(httpBasic(usuario.getEmail(), "novaSenha123")))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value("investigador@example.com"));
+                .andExpect(jsonPath("$.email").value("investigador@example.com"))
+                .andExpect(jsonPath("$.emailVerificado").value(true));
     }
 
     @Test

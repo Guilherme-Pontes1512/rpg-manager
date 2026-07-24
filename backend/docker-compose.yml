@@ -1,3 +1,5 @@
+name: rpg-manager
+
 services:
   mysql:
     image: mysql:8.4
@@ -27,10 +29,25 @@ services:
       MYSQL_URL: jdbc:mysql://mysql:3306/rpg_manager?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Sao_Paulo
       MYSQL_USER: root
       MYSQL_PASSWORD: rpg10
-      APP_EMAIL_ENABLED: "false"
+      APP_EMAIL_ENABLED: "true"
+      SMTP_PASSWORD: ${SMTP_PASSWORD:?Defina SMTP_PASSWORD no arquivo .env}
       FRONTEND_BASE_URL: http://localhost:5173
     ports:
       - "8080:8080"
+      - "5173:5173"
+
+  frontend:
+    image: node:22-alpine
+    container_name: rpg-manager-frontend
+    depends_on:
+      - backend
+    network_mode: "service:backend"
+    working_dir: /app
+    volumes:
+      - ../frontend:/app
+      - frontend-node-modules:/app/node_modules
+    command: sh -c "npm ci && npm run dev -- --host 0.0.0.0"
 
 volumes:
   mysql-data:
+  frontend-node-modules:

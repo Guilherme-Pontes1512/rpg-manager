@@ -41,6 +41,7 @@ export function TelaCampanhas({ token, user }: TelaCampanhasProps) {
   const [campanhas, setCampanhas] = useState<CampanhaResumo[]>([])
   const [campanhaAtual, setCampanhaAtual] = useState<CampanhaDetalhe | null>(null)
   const [campanhaSelecionadaId, setCampanhaSelecionadaId] = useState<number | null>(null)
+  const [personagemSelecionadoId, setPersonagemSelecionadoId] = useState<number | null>(null)
   const [viewMode, setViewMode] = useState<CampaignViewMode>('lista')
   const [form, setForm] = useState<CampanhaFormulario>(formularioInicial)
   const [playerIdentificador, setPlayerIdentificador] = useState('')
@@ -114,6 +115,7 @@ export function TelaCampanhas({ token, user }: TelaCampanhasProps) {
   function iniciarNovaCampanha() {
     setViewMode('formulario')
     setCampanhaSelecionadaId(null)
+    setPersonagemSelecionadoId(null)
     setCampanhaAtual(null)
     setForm(formularioInicial)
     setPlayerIdentificador('')
@@ -225,7 +227,18 @@ export function TelaCampanhas({ token, user }: TelaCampanhasProps) {
   const membroAtual = campanhaAtual?.membros.find((membro) => membro.usuarioId === user.id)
 
   function voltarParaLista() {
+    setPersonagemSelecionadoId(null)
     setViewMode('lista')
+  }
+
+  function abrirFichaPersonagemComoMestre(personagemId: number) {
+    setPersonagemSelecionadoId(personagemId)
+    setViewMode('personagens')
+  }
+
+  function voltarParaAcompanhamento() {
+    setPersonagemSelecionadoId(null)
+    setViewMode('acompanhamento')
   }
 
   return (
@@ -247,15 +260,18 @@ export function TelaCampanhas({ token, user }: TelaCampanhasProps) {
         <TelaAcompanhamentoMestre
           campanhaId={campanhaAtual.id}
           onBack={voltarParaLista}
+          onEditarPersonagem={abrirFichaPersonagemComoMestre}
           token={token}
         />
       ) : isPersonagensView && campanhaAtual ? (
         <TelaPersonagemCoc
-          backLabel="Voltar para campanhas"
+          backLabel={campanhaAtual.papel === 'MESTRE' ? 'Voltar para acompanhamento' : 'Voltar para campanhas'}
           campanhaId={campanhaAtual.id}
           campanhaNome={campanhaAtual.nome}
           canCreate={membroAtual?.papel === 'JOGADOR'}
-          onBack={voltarParaLista}
+          canDelete={campanhaAtual.papel !== 'MESTRE'}
+          initialPersonagemId={personagemSelecionadoId}
+          onBack={campanhaAtual.papel === 'MESTRE' ? voltarParaAcompanhamento : voltarParaLista}
           token={token}
         />
       ) : isFormView ? (

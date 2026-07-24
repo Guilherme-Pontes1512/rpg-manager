@@ -27,6 +27,8 @@ type TelaPersonagemCocProps = {
   campanhaId?: number
   campanhaNome?: string
   canCreate?: boolean
+  canDelete?: boolean
+  initialPersonagemId?: number | null
   onBack?: () => void
   token: string
 }
@@ -199,7 +201,9 @@ export function TelaPersonagemCoc({
   backLabel = 'Voltar',
   campanhaId,
   campanhaNome,
+  canDelete = true,
   canCreate = true,
+  initialPersonagemId,
   onBack,
   token,
 }: TelaPersonagemCocProps) {
@@ -217,6 +221,14 @@ export function TelaPersonagemCoc({
   useEffect(() => {
     void carregarPersonagens()
   }, [token, campanhaId])
+
+  useEffect(() => {
+    if (!initialPersonagemId) {
+      return
+    }
+
+    void abrirFichaPersonagem(initialPersonagemId)
+  }, [initialPersonagemId])
 
   useEffect(() => {
     if (!campanhaIdFixo) {
@@ -664,7 +676,7 @@ export function TelaPersonagemCoc({
             <button className="ghost-button" type="button" onClick={voltarParaLista}>
               Voltar para personagens
             </button>
-            {form.id ? (
+            {form.id && canDelete ? (
               <button
                 className="coc-delete-button"
                 type="button"

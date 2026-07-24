@@ -11,12 +11,13 @@ import './TelaAcompanhamentoMestre.css'
 type TelaAcompanhamentoMestreProps = {
   campanhaId: number
   onBack: () => void
+  onEditarPersonagem: (personagemId: number) => void
   token: string
 }
 
 const ACCEPTED_DOCUMENT_TYPES = '.pdf,.jpeg,.jpg,.png'
 
-export function TelaAcompanhamentoMestre({ campanhaId, onBack, token }: TelaAcompanhamentoMestreProps) {
+export function TelaAcompanhamentoMestre({ campanhaId, onBack, onEditarPersonagem, token }: TelaAcompanhamentoMestreProps) {
   const { notify } = useNotificacoes()
   const [acompanhamento, setAcompanhamento] = useState<AcompanhamentoCampanha | null>(null)
   const [arquivo, setArquivo] = useState<File | null>(null)
@@ -96,7 +97,11 @@ export function TelaAcompanhamentoMestre({ campanhaId, onBack, token }: TelaAcom
         ) : null}
         <div className="gm-character-grid">
           {personagens.map((personagem) => (
-            <PersonagemAcompanhamentoCard key={personagem.id} personagem={personagem} />
+            <PersonagemAcompanhamentoCard
+              key={personagem.id}
+              onEditar={() => onEditarPersonagem(personagem.id)}
+              personagem={personagem}
+            />
           ))}
         </div>
       </section>
@@ -142,7 +147,13 @@ export function TelaAcompanhamentoMestre({ campanhaId, onBack, token }: TelaAcom
   )
 }
 
-function PersonagemAcompanhamentoCard({ personagem }: { personagem: AcompanhamentoPersonagem }) {
+function PersonagemAcompanhamentoCard({
+  onEditar,
+  personagem,
+}: {
+  onEditar: () => void
+  personagem: AcompanhamentoPersonagem
+}) {
   const vidaPercentual = useMemo(() => {
     if (!personagem.vidaMaxima || personagem.vidaMaxima <= 0 || personagem.vidaAtual == null) {
       return 0
@@ -175,6 +186,9 @@ function PersonagemAcompanhamentoCard({ personagem }: { personagem: Acompanhamen
           <dd>{personagem.sanidade ?? '-'}</dd>
         </div>
       </dl>
+      <button className="ghost-button gm-character-edit-button" type="button" onClick={onEditar}>
+        Abrir ficha
+      </button>
     </article>
   )
 }
