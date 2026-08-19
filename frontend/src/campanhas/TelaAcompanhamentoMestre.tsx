@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNotificacoes } from '../notificacoes/NotificacoesProvider'
 import {
+  acompanharAcompanhamentoCampanhaTempoReal,
   baixarDocumentoCampanha,
   enviarDocumentoCampanha,
   obterAcompanhamentoCampanha,
@@ -26,6 +27,17 @@ export function TelaAcompanhamentoMestre({ campanhaId, onBack, onEditarPersonage
 
   useEffect(() => {
     void carregarAcompanhamento()
+  }, [campanhaId, token])
+
+  useEffect(() => {
+    const stream = acompanharAcompanhamentoCampanhaTempoReal(
+      token,
+      campanhaId,
+      () => void carregarAcompanhamento(),
+      (caughtError) => notify('error', extrairErro(caughtError, 'Acompanhamento em tempo real desconectado.')),
+    )
+
+    return () => stream.abort()
   }, [campanhaId, token])
 
   async function carregarAcompanhamento() {

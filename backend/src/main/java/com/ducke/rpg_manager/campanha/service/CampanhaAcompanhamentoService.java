@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -42,6 +43,7 @@ public class CampanhaAcompanhamentoService {
     private final CampanhaDocumentoRepository documentoRepository;
     private final CampanhaDocumentoDownloadStatusRepository downloadStatusRepository;
     private final PersonagemCocRepository personagemRepository;
+    private final CampanhaAcompanhamentoRealtimeService realtimeService;
     private final UsuarioAtualService usuarioAtualService;
     private final UsuarioRepository usuarioRepository;
     private final ObjectMapper objectMapper;
@@ -62,6 +64,11 @@ public class CampanhaAcompanhamentoService {
                 .toList();
 
         return new AcompanhamentoCampanhaOutput(campanha.getId(), campanha.getNome(), personagens, documentos);
+    }
+
+    public SseEmitter acompanharTempoReal(Long campanhaId) {
+        validarMestre(campanhaId);
+        return realtimeService.conectar(campanhaId);
     }
 
     @Transactional

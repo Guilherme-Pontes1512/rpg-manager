@@ -30,19 +30,54 @@ type TelaCampanhasProps = {
 
 type CampaignViewMode = 'lista' | 'formulario' | 'personagens' | 'acompanhamento'
 
+type StoredCampaignNavigation = {
+  campanhaSelecionadaId: number | null
+  personagemSelecionadoId: number | null
+  viewMode: CampaignViewMode
+}
+
 const formularioInicial: CampanhaFormulario = {
   nome: '',
   sistema: 'COC',
   descricao: '',
 }
 
+const CAMPAIGN_NAVIGATION_STORAGE_KEY = 'rpg-manager-campaign-navigation'
+
+function getInitialCampaignNavigation(): StoredCampaignNavigation {
+  try {
+    const storedNavigation = window.localStorage.getItem(CAMPAIGN_NAVIGATION_STORAGE_KEY)
+    if (!storedNavigation) {
+      return { campanhaSelecionadaId: null, personagemSelecionadoId: null, viewMode: 'lista' }
+    }
+
+    const parsedNavigation = JSON.parse(storedNavigation) as Partial<StoredCampaignNavigation>
+    const viewMode = parsedNavigation.viewMode
+
+    return {
+      campanhaSelecionadaId: typeof parsedNavigation.campanhaSelecionadaId === 'number'
+        ? parsedNavigation.campanhaSelecionadaId
+        : null,
+      personagemSelecionadoId: typeof parsedNavigation.personagemSelecionadoId === 'number'
+        ? parsedNavigation.personagemSelecionadoId
+        : null,
+      viewMode: viewMode === 'formulario' || viewMode === 'personagens' || viewMode === 'acompanhamento'
+        ? viewMode
+        : 'lista',
+    }
+  } catch {
+    return { campanhaSelecionadaId: null, personagemSelecionadoId: null, viewMode: 'lista' }
+  }
+}
+
 export function TelaCampanhas({ token, user }: TelaCampanhasProps) {
   const { notify } = useNotificacoes()
+  const [initialNavigation] = useState(getInitialCampaignNavigation)
   const [campanhas, setCampanhas] = useState<CampanhaResumo[]>([])
   const [campanhaAtual, setCampanhaAtual] = useState<CampanhaDetalhe | null>(null)
-  const [campanhaSelecionadaId, setCampanhaSelecionadaId] = useState<number | null>(null)
-  const [personagemSelecionadoId, setPersonagemSelecionadoId] = useState<number | null>(null)
-  const [viewMode, setViewMode] = useState<CampaignViewMode>('lista')
+  const [campanhaSelecionadaId, setCampanhaSelecionadaId] = useState<number | null>(initialNavigation.campanhaSelecionadaId)
+  const [personagemSelecionadoId, setPersonagemSelecionadoId] = useState<number | null>(initialNavigation.personagemSelecionadoId)
+  const [viewMode, setViewMode] = useState<CampaignViewMode>(initialNavigation.viewMode)
   const [form, setForm] = useState<CampanhaFormulario>(formularioInicial)
   const [playerIdentificador, setPlayerIdentificador] = useState('')
   const [loadingLista, setLoadingLista] = useState(true)
@@ -52,6 +87,14 @@ export function TelaCampanhas({ token, user }: TelaCampanhasProps) {
   useEffect(() => {
     void carregarCampanhas()
   }, [token])
+
+  useEffect(() => {
+    window.localStorage.setItem(CAMPAIGN_NAVIGATION_STORAGE_KEY, JSON.stringify({
+      campanhaSelecionadaId,
+      personagemSelecionadoId,
+      viewMode,
+    }))
+  }, [campanhaSelecionadaId, personagemSelecionadoId, viewMode])
 
   async function carregarCampanhas(preferidaId?: number | null) {
     setLoadingLista(true)
@@ -64,10 +107,12 @@ export function TelaCampanhas({ token, user }: TelaCampanhasProps) {
         preferidaId ??
         (campanhaSelecionadaId && campanhasCarregadas.some(({ id }) => id === campanhaSelecionadaId)
           ? campanhaSelecionadaId
-          : campanhasCarregadas[0]?.id ?? null)
+          : viewMode === 'lista'
+            ? null
+            : campanhasCarregadas[0]?.id ?? null)
 
       if (proximaId) {
-        await selecionarCampanha(proximaId)
+        await carregarCampanhaSelecionada(proximaId)
       } else {
         setCampanhaSelecionadaId(null)
         setCampanhaAtual(null)
@@ -82,18 +127,23 @@ export function TelaCampanhas({ token, user }: TelaCampanhasProps) {
 
   async function selecionarCampanha(campanhaId: number) {
     try {
-      const detalhe = await obterCampanha(token, campanhaId)
+      await carregarCampanhaSelecionada(campanhaId)
       setViewMode('formulario')
-      setCampanhaSelecionadaId(campanhaId)
-      setCampanhaAtual(detalhe)
-      setForm({
-        nome: detalhe.nome,
-        sistema: detalhe.sistema,
-        descricao: detalhe.descricao ?? '',
-      })
     } catch (caughtError) {
       notify('error', extrairErro(caughtError, 'Nao foi possivel abrir a campanha.'))
     }
+  }
+
+  async function carregarCampanhaSelecionada(campanhaId: number) {
+    const detalhe = await obterCampanha(token, campanhaId)
+
+    setCampanhaSelecionadaId(campanhaId)
+    setCampanhaAtual(detalhe)
+    setForm({
+      nome: detalhe.nome,
+      sistema: detalhe.sistema,
+      descricao: detalhe.descricao ?? '',
+    })
   }
 
   async function abrirPersonagensDaCampanha(campanhaId: number) {
@@ -108,7 +158,7 @@ export function TelaCampanhas({ token, user }: TelaCampanhasProps) {
         descricao: detalhe.descricao ?? '',
       })
     } catch (caughtError) {
-      notify('error', extrairErro(caughtError, 'Nao foi possivel abrir os personagens da campanha.'))
+      notify('error', extrairErro(caughtError, 'Nao foi possivel abrir a campanha.'))
     }
   }
 

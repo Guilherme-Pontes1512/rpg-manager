@@ -9,6 +9,7 @@ export type AtributosCoc = {
 
 export type PericiaCoc = {
   base: number
+  marcada?: boolean
   nome: string
   valor: number
 }
@@ -33,22 +34,24 @@ export type FichaCoc = {
   aparencia?: string
   armas?: ArmaCoc[]
   atributos: AtributosCoc
+  esquiva: number
   historico?: string
   idade?: number
   importantes?: string
   inventario?: string
   nacionalidade?: string
   ocupacao?: string
-  origem?: string
-  origemBuff?: string
-  origemHabilidade?: string
-  origemPericias?: string
+  ocupacaoPericias?: string
   pericias: PericiaCoc[]
-  pontosDeDestino: number
+  pontosDeDestino?: number
+  profissao?: string
   retratoUrl?: string
   rituais?: RitualCoc[]
   sanidade: number
   sexo?: string
+  sorte: number
+  origem?: string
+  origemPericias?: string
   vidaAtual: number
   vidaMaxima: number
 }

@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 public record PericiasSRCocDto(
         @NotBlank String nome,
         @NotNull @Min(0) @Max(999) Integer base,
-        @NotNull @Min(0) @Max(999) Integer valor
+        @NotNull @Min(0) @Max(999) Integer valor,
+        Boolean marcada
 ) {
 }

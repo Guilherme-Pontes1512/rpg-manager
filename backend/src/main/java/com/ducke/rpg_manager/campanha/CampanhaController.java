@@ -18,6 +18,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -60,6 +61,11 @@ public class CampanhaController {
     @GetMapping("/{id}/acompanhamento")
     public ResponseEntity<AcompanhamentoCampanhaOutput> obterAcompanhamento(@PathVariable Long id) {
         return ResponseEntity.ok(acompanhamentoService.obterAcompanhamento(id));
+    }
+
+    @GetMapping(value = "/{id}/acompanhamento/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter acompanharTempoReal(@PathVariable Long id) {
+        return acompanhamentoService.acompanharTempoReal(id);
     }
 
     @PostMapping(value = "/{id}/documentos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

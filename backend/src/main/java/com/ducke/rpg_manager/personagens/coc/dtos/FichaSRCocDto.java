@@ -1,5 +1,7 @@
 package com.ducke.rpg_manager.personagens.coc.dtos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -7,8 +9,11 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record FichaSRCocDto(
         String ocupacao,
+        @JsonAlias({"profissão", "Profissao", "Profissão"})
+        String profissao,
         String sexo,
         Integer idade,
         String nacionalidade,
@@ -25,16 +30,16 @@ public record FichaSRCocDto(
         @NotNull @Min(-5) @Max(5)
         Integer sanidade,
 
-        @NotNull @Min(0) @Max(3)
-        Integer pontosDeDestino,
+        @NotNull @Min(0) @Max(999)
+        Integer esquiva,
+
+        @NotNull @Min(0) @Max(999)
+        Integer sorte,
 
         @Valid
         List<PericiasSRCocDto> pericias,
 
-        String origem,
-        String origemHabilidade,
-        String origemBuff,
-        String origemPericias,
+        String ocupacaoPericias,
         String retratoUrl,
         String anotacoes,
         String historico,

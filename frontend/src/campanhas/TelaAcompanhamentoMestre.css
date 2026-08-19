@@ -45,7 +45,7 @@
 
 .gm-character-card {
   display: grid;
-  grid-template-columns: 72px minmax(160px, 1fr) auto;
+  grid-template-columns: 72px minmax(160px, 1fr) auto auto;
   align-items: center;
   gap: 12px;
   min-height: 96px;
@@ -150,6 +150,7 @@
 }
 
 .gm-character-edit-button {
+  align-self: center;
   justify-self: end;
   white-space: nowrap;
 }

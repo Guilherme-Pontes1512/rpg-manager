@@ -347,6 +347,10 @@ class RpgManagerApplicationTests {
                 .andExpect(jsonPath("$.campanhaId").value(campanha.getId()))
                 .andExpect(jsonPath("$.dadosFichaJson.anotacoes").value("Cicatriz no rosto"))
                 .andExpect(jsonPath("$.dadosFichaJson.aparencia").value("Olhar cansado"))
+                .andExpect(jsonPath("$.dadosFichaJson.ocupacao").value("Acadêmico"))
+                .andExpect(jsonPath("$.dadosFichaJson.profissao").value("Professor"))
+                .andExpect(jsonPath("$.dadosFichaJson.ocupacaoPericias").value("Ciencias, Historia, Investigacao e Psicologia"))
+                .andExpect(jsonPath("$.dadosFichaJson.pericias[0].marcada").value(true))
                 .andReturn();
 
         Long personagemId = lerId(createResult);
@@ -355,16 +359,24 @@ class RpgManagerApplicationTests {
                         .with(httpBasic(usuario.getEmail(), "senha123")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(personagemId))
+                .andExpect(jsonPath("$.dadosFichaJson.profissao").value("Professor"))
                 .andExpect(jsonPath("$.dadosFichaJson.vidaMaxima").value(12));
 
-        String updatePayload = objectMapper.writeValueAsString(personagemPayload(
+        Map<String, Object> updatePayloadMap = personagemPayload(
                 campanha.getId(),
                 "Harvey Walters",
                 "Professor aposentado",
                 "Terno escuro",
                 "https://example.com/harvey-dark.png",
                 "INATIVO"
-        ));
+        );
+        @SuppressWarnings("unchecked")
+        Map<String, Object> updateFicha = new java.util.LinkedHashMap<>((Map<String, Object>) updatePayloadMap.get("dadosFichaJson"));
+        updateFicha.put("profissao", "Professor universitario aposentado");
+        updateFicha.put("pericias", List.of(Map.of("nome", "Biblioteca", "base", 20, "valor", 70, "marcada", false)));
+        updatePayloadMap = new java.util.LinkedHashMap<>(updatePayloadMap);
+        updatePayloadMap.put("dadosFichaJson", updateFicha);
+        String updatePayload = objectMapper.writeValueAsString(updatePayloadMap);
 
         mockMvc.perform(put("/api/personagens/coc/{id}", personagemId)
                         .with(httpBasic(usuario.getEmail(), "senha123"))
@@ -372,7 +384,19 @@ class RpgManagerApplicationTests {
                         .content(updatePayload))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.historia").value("Professor aposentado"))
-                .andExpect(jsonPath("$.status").value("INATIVO"));
+                .andExpect(jsonPath("$.status").value("INATIVO"))
+                .andExpect(jsonPath("$.dadosFichaJson.profissao").value("Professor universitario aposentado"))
+                .andExpect(jsonPath("$.dadosFichaJson.pericias[0].marcada").value(false));
+
+        mockMvc.perform(get("/api/personagens/coc/{id}", personagemId)
+                        .with(httpBasic(usuario.getEmail(), "senha123")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.dadosFichaJson.profissao").value("Professor universitario aposentado"))
+                .andExpect(jsonPath("$.dadosFichaJson.pericias[0].marcada").value(false));
+
+        String dadosFichaSalvos = personagemCocRepository.findById(personagemId).orElseThrow().getDadosFichaJson();
+        org.junit.jupiter.api.Assertions.assertTrue(dadosFichaSalvos.contains("\"profissao\":\"Professor universitario aposentado\""));
+        org.junit.jupiter.api.Assertions.assertTrue(dadosFichaSalvos.contains("\"marcada\":false"));
 
         mockMvc.perform(delete("/api/personagens/coc/{id}", personagemId)
                         .with(httpBasic(usuario.getEmail(), "senha123")))
@@ -381,6 +405,59 @@ class RpgManagerApplicationTests {
         mockMvc.perform(get("/api/personagens/coc/{id}", personagemId)
                         .with(httpBasic(usuario.getEmail(), "senha123")))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void deveListarApenasPersonagensDoUsuarioNaAbaGlobal() throws Exception {
+        Usuario mestre = criarUsuarioLocal("mestre-global", "mestre-global@example.com", "senha123");
+        Usuario playerUm = criarUsuarioLocal("player-global-um", "player-global-um@example.com", "senha123");
+        Usuario playerDois = criarUsuarioLocal("player-global-dois", "player-global-dois@example.com", "senha123");
+        Campanha campanha = campanhaRepository.save(new Campanha(null, "Sombras de Sao Raguel", "Campanha COC", SistemaEnum.COC, null));
+
+        campanhaMembrosRepository.save(new CampanhaMembro(null, campanha, mestre, CampanhaPapelEnum.MESTRE));
+        campanhaMembrosRepository.save(new CampanhaMembro(null, campanha, playerUm, CampanhaPapelEnum.JOGADOR));
+        campanhaMembrosRepository.save(new CampanhaMembro(null, campanha, playerDois, CampanhaPapelEnum.JOGADOR));
+
+        String personagemPlayerUm = objectMapper.writeValueAsString(personagemPayload(
+                campanha.getId(),
+                "Investigador Um",
+                "Historia um",
+                "Aparencia um",
+                "https://example.com/um.png",
+                "ATIVO"
+        ));
+        String personagemPlayerDois = objectMapper.writeValueAsString(personagemPayload(
+                campanha.getId(),
+                "Investigador Dois",
+                "Historia dois",
+                "Aparencia dois",
+                "https://example.com/dois.png",
+                "ATIVO"
+        ));
+
+        mockMvc.perform(post("/api/personagens/coc")
+                        .with(httpBasic(playerUm.getEmail(), "senha123"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(personagemPlayerUm))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/personagens/coc")
+                        .with(httpBasic(playerDois.getEmail(), "senha123"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(personagemPlayerDois))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/personagens/coc")
+                        .with(httpBasic(playerUm.getEmail(), "senha123")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].nome").value("Investigador Um"));
+
+        mockMvc.perform(get("/api/personagens/coc")
+                        .param("campanhaId", String.valueOf(campanha.getId()))
+                        .with(httpBasic(playerUm.getEmail(), "senha123")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2));
     }
 
     private Usuario criarUsuarioLocal(String username, String email, String senha) {
@@ -416,7 +493,8 @@ class RpgManagerApplicationTests {
                 "imageUrl", imageUrl,
                 "status", status,
                 "dadosFichaJson", Map.ofEntries(
-                        entry("ocupacao", "Professor"),
+                        entry("ocupacao", "Acadêmico"),
+                        entry("profissao", "Professor"),
                         entry("sexo", "M"),
                         entry("idade", 54),
                         entry("nacionalidade", "US"),
@@ -431,12 +509,11 @@ class RpgManagerApplicationTests {
                         entry("vidaAtual", 10),
                         entry("vidaMaxima", 12),
                         entry("sanidade", 2),
+                        entry("esquiva", 27),
+                        entry("sorte", 50),
                         entry("pontosDeDestino", 1),
-                        entry("pericias", List.of(Map.of("nome", "Biblioteca", "base", 20, "valor", 65))),
-                        entry("origem", "Academico"),
-                        entry("origemHabilidade", "Conhecimento aplicado"),
-                        entry("origemBuff", "Recebe +10% em um teste de pericia."),
-                        entry("origemPericias", "Ciencias e Historia"),
+                        entry("pericias", List.of(Map.of("nome", "Biblioteca", "base", 20, "valor", 65, "marcada", true))),
+                        entry("ocupacaoPericias", "Ciencias, Historia, Investigacao e Psicologia"),
                         entry("anotacoes", "Cicatriz no rosto"),
                         entry("historico", "Professor de historia em Arkham"),
                         entry("aparencia", "Olhar cansado"),

@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 009-expand-campanha-documentos-conteudo-mysql
+      author: ducke
+      dbms: mysql
+      changes:
+        - modifyDataType:
+            tableName: campanha_documentos
+            columnName: conteudo
+            newDataType: mediumblob

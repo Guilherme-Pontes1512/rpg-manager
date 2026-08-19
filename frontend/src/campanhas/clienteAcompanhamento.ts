@@ -24,6 +24,62 @@ export function obterAcompanhamentoCampanha(token: string, campanhaId: number) {
   return acompanhamentoRequest<AcompanhamentoCampanha>(token, `/api/campanhas/${campanhaId}/acompanhamento`)
 }
 
+export function acompanharAcompanhamentoCampanhaTempoReal(
+  token: string,
+  campanhaId: number,
+  onFichaAtualizada: () => void,
+  onError: (error: unknown) => void,
+) {
+  const controller = new AbortController()
+
+  void (async () => {
+    try {
+      const response = await fetch(`/api/campanhas/${campanhaId}/acompanhamento/stream`, {
+        headers: {
+          Accept: 'text/event-stream',
+          Authorization: `Basic ${token}`,
+        },
+        signal: controller.signal,
+      })
+
+      if (!response.ok) {
+        throw new Error(await readError(response))
+      }
+
+      if (!response.body) {
+        return
+      }
+
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
+
+      while (!controller.signal.aborted) {
+        const { done, value } = await reader.read()
+        if (done) {
+          break
+        }
+
+        buffer += decoder.decode(value, { stream: true })
+        const events = buffer.split('\n\n')
+        buffer = events.pop() ?? ''
+
+        events.forEach((eventText) => {
+          if (eventText.includes('event:character-sheet-updated')) {
+            onFichaAtualizada()
+          }
+        })
+      }
+    } catch (caughtError) {
+      if (!controller.signal.aborted) {
+        onError(caughtError)
+      }
+    }
+  })()
+
+  return controller
+}
+
 export function enviarDocumentoCampanha(token: string, campanhaId: number, arquivo: File) {
   const body = new FormData()
   body.append('arquivo', arquivo)

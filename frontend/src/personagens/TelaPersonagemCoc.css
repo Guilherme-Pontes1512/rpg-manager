@@ -398,40 +398,21 @@
   color: #fff7ef;
 }
 
-.coc-destiny {
+.coc-vital-field label {
   display: flex;
-  gap: 14px;
   align-items: center;
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
-
-.coc-destiny legend {
-  width: 100%;
-  margin-bottom: 10px;
+  justify-content: space-between;
+  gap: 12px;
   color: var(--muted);
-  font-weight: 700;
+  font-weight: 800;
 }
 
-.coc-destiny label input {
-  position: absolute;
-  opacity: 0;
-}
-
-.coc-destiny label span {
-  display: block;
-  width: 34px;
-  height: 34px;
-  border: 2px solid rgba(47, 91, 79, 0.58);
-  border-radius: 999px;
-  background: transparent;
-}
-
-.coc-destiny label input:checked + span {
-  background:
-    radial-gradient(circle at center, #2f5b4f 0 42%, transparent 45%),
-    var(--input-bg);
+.coc-vital-field input {
+  width: 82px;
+  min-height: 42px;
+  padding-inline: 12px;
+  text-align: center;
+  font-weight: 800;
 }
 
 .coc-skill-list {
@@ -441,8 +422,8 @@
 
 .coc-skill {
   display: grid;
-  grid-template-columns: minmax(110px, 160px) minmax(210px, 280px);
-  gap: 8px;
+  grid-template-columns: minmax(190px, 240px) minmax(220px, 280px);
+  gap: 14px;
   align-items: center;
   justify-content: start;
 }
@@ -452,6 +433,14 @@
   align-items: center;
   gap: 8px;
   font-weight: 700;
+  min-width: 0;
+}
+
+.coc-skill-name input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  accent-color: var(--icon-button-text);
 }
 
 .coc-skill-roll {
