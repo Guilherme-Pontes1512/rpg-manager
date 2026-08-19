@@ -14,15 +14,21 @@ import { TelaPersonagemCoc } from './personagens/TelaPersonagemCoc'
 import type { ThemeMode } from './theme/BotaoTema'
 
 const THEME_STORAGE_KEY = 'rpg-manager-theme'
+const APP_VIEW_STORAGE_KEY = 'rpg-manager-current-view'
 
 function getInitialTheme(): ThemeMode {
   const storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY)
   return storedTheme === 'dark' ? 'dark' : 'light'
 }
 
+function getInitialAppView(): AppView {
+  const storedView = window.localStorage.getItem(APP_VIEW_STORAGE_KEY)
+  return storedView === 'personagens' || storedView === 'sessoes' ? storedView : 'campanhas'
+}
+
 function App() {
   const [authLoading, setAuthLoading] = useState(true)
-  const [currentView, setCurrentView] = useState<AppView>('campanhas')
+  const [currentView, setCurrentView] = useState<AppView>(getInitialAppView)
   const [statusMessage, setStatusMessage] = useState('Carregando sessao...')
   const [theme, setTheme] = useState<ThemeMode>(getInitialTheme)
   const [user, setUser] = useState<AuthUser | null>(null)
@@ -31,6 +37,10 @@ function App() {
     document.documentElement.dataset.theme = theme
     window.localStorage.setItem(THEME_STORAGE_KEY, theme)
   }, [theme])
+
+  useEffect(() => {
+    window.localStorage.setItem(APP_VIEW_STORAGE_KEY, currentView)
+  }, [currentView])
 
   useEffect(() => {
     const token = getStoredToken()
@@ -63,6 +73,7 @@ function App() {
 
   function handleLogout() {
     clearStoredToken()
+    window.localStorage.removeItem(APP_VIEW_STORAGE_KEY)
     setUser(null)
     setStatusMessage('Sessao encerrada.')
   }

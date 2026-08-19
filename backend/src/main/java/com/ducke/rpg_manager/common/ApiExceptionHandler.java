@@ -3,6 +3,7 @@ package com.ducke.rpg_manager.common;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
@@ -49,6 +50,11 @@ public class ApiExceptionHandler {
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiErrorResponse> handleUnauthorized(BadCredentialsException ex) {
         return build(HttpStatus.UNAUTHORIZED, "Credenciais invalidas", null);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiErrorResponse> handleForbidden(AccessDeniedException ex) {
+        return build(HttpStatus.FORBIDDEN, ex.getMessage(), null);
     }
 
     private ResponseEntity<ApiErrorResponse> build(HttpStatus status, String message, Map<String, String> fields) {

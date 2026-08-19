@@ -31,7 +31,7 @@ services:
       MYSQL_PASSWORD: rpg10
       APP_EMAIL_ENABLED: "true"
       SMTP_PASSWORD: ${SMTP_PASSWORD:?Defina SMTP_PASSWORD no arquivo .env}
-      FRONTEND_BASE_URL: http://localhost:5173
+      FRONTEND_BASE_URL: https://degrading-dreamy-antihero.ngrok-free.dev
     ports:
       - "8080:8080"
       - "5173:5173"

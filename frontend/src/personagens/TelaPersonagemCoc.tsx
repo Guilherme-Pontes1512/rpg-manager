@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { faDiceD20, faPlus, faTrashCan } from '@fortawesome/free-solid-svg-icons'
 import { listarCampanhas } from '../campanhas/clienteCampanhas'
@@ -148,6 +148,7 @@ const SECOES_COLAPSAVEIS: SecaoColapsavel[] = [
 ]
 
 const ALPHANUMERIC_PATTERN = '[A-Za-zÀ-ÖØ-öø-ÿ0-9 ]*'
+const AUTOSAVE_DELAY_MS = 3000
 
 function criarFichaInicial(): FichaCoc {
   return {
@@ -201,6 +202,9 @@ export function TelaPersonagemCoc({
   const [vidaMaximaEmEdicao, setVidaMaximaEmEdicao] = useState<string | null>(null)
   const [esquivaManual, setEsquivaManual] = useState(false)
   const [viewMode, setViewMode] = useState<CharacterViewMode>('lista')
+  const autosaveTimerRef = useRef<number | null>(null)
+  const autosaveInFlightRef = useRef(false)
+  const lastSavedPayloadRef = useRef('')
 
   useEffect(() => {
     void carregarPersonagens()
@@ -221,6 +225,44 @@ export function TelaPersonagemCoc({
 
     setForm((current) => ({ ...current, campanhaId: campanhaIdFixo }))
   }, [campanhaIdFixo])
+
+  useEffect(() => {
+    if (viewMode !== 'formulario' || !form.id || saving) {
+      return
+    }
+
+    const payload = montarPayloadFicha()
+    if (!payload) {
+      return
+    }
+
+    const serializedPayload = serializarPayload(payload)
+    if (serializedPayload === lastSavedPayloadRef.current) {
+      return
+    }
+
+    const personagemId = form.id
+    if (autosaveTimerRef.current) {
+      window.clearTimeout(autosaveTimerRef.current)
+    }
+
+    autosaveTimerRef.current = window.setTimeout(() => {
+      void salvarFichaAutomaticamente(personagemId, payload, serializedPayload)
+    }, AUTOSAVE_DELAY_MS)
+
+    return () => {
+      if (autosaveTimerRef.current) {
+        window.clearTimeout(autosaveTimerRef.current)
+        autosaveTimerRef.current = null
+      }
+    }
+  }, [form, saving, viewMode, token])
+
+  useEffect(() => () => {
+    if (autosaveTimerRef.current) {
+      window.clearTimeout(autosaveTimerRef.current)
+    }
+  }, [])
 
   const vidaPercentual = useMemo(() => {
     if (form.ficha.vidaMaxima <= 0) {
@@ -275,7 +317,7 @@ export function TelaPersonagemCoc({
       ?? OCUPACOES.find((item) => item.nome === ocupacao)?.pericias
       ?? ''
 
-    setForm({
+    const nextForm: PersonagemCocForm = {
       campanhaId: String(personagem.campanhaId),
       ficha: {
         ...fichaPadrao,
@@ -299,7 +341,10 @@ export function TelaPersonagemCoc({
       id: personagem.id,
       imageUrl: personagem.imageUrl ?? '',
       nome: personagem.nome,
-    })
+    }
+
+    lastSavedPayloadRef.current = serializarPayloadFormulario(nextForm)
+    setForm(nextForm)
     setEsquivaManual(esquiva !== calcularEsquiva(atributos.destreza))
     setViewMode('formulario')
   }
@@ -323,6 +368,7 @@ export function TelaPersonagemCoc({
   }
 
   function iniciarNovaFicha() {
+    lastSavedPayloadRef.current = ''
     setForm(criarFormularioInicial(campanhaIdFixo))
     setEsquivaManual(false)
     setViewMode('formulario')
@@ -365,11 +411,10 @@ export function TelaPersonagemCoc({
     setSaving(true)
 
     try {
-      const payload: PersonagemCoc = {
-        campanhaId: campanhaIdPayload,
-        dadosFichaJson: prepararFichaParaSalvar(form.ficha),
-        nome: form.nome.trim(),
-        status: 'ATIVO',
+      const payload = montarPayloadFicha(campanhaIdPayload)
+      if (!payload) {
+        notify('error', 'Preencha os dados obrigatorios da ficha antes de salvar.')
+        return
       }
 
       const salvo = form.id
@@ -383,6 +428,37 @@ export function TelaPersonagemCoc({
       notify('error', extrairErro(caughtError, 'Nao foi possivel salvar a ficha.'))
     } finally {
       setSaving(false)
+    }
+  }
+
+  function montarPayloadFicha(campanhaIdPayload = Number(form.campanhaId)): PersonagemCoc | null {
+    const nome = form.nome.trim()
+    if (!campanhaIdPayload || !nome) {
+      return null
+    }
+
+    return {
+      campanhaId: campanhaIdPayload,
+      dadosFichaJson: prepararFichaParaSalvar(form.ficha),
+      nome,
+      status: 'ATIVO',
+    }
+  }
+
+  async function salvarFichaAutomaticamente(personagemId: number, payload: PersonagemCoc, serializedPayload: string) {
+    if (autosaveInFlightRef.current || serializedPayload === lastSavedPayloadRef.current) {
+      return
+    }
+
+    autosaveInFlightRef.current = true
+
+    try {
+      await atualizarPersonagemCoc(token, personagemId, payload)
+      lastSavedPayloadRef.current = serializedPayload
+    } catch (caughtError) {
+      notify('error', extrairErro(caughtError, 'Nao foi possivel salvar a ficha automaticamente.'))
+    } finally {
+      autosaveInFlightRef.current = false
     }
   }
 
@@ -892,7 +968,7 @@ export function TelaPersonagemCoc({
               <section className="coc-skills-panel">
                 <div className="coc-skills-header">
                   <h2>Pericias</h2>
-                  <span>Base / Normal / Bom / Extremo</span>
+                  <span>Base / Normal / Difícil / Extremo</span>
                 </div>
                 <div className="coc-skill-list">
                   {form.ficha.pericias.map((pericia, index) => (
@@ -1166,6 +1242,25 @@ function prepararFichaParaSalvar(ficha: FichaCoc): FichaCoc {
     origem: undefined,
     origemPericias: undefined,
   }
+}
+
+function serializarPayloadFormulario(form: PersonagemCocForm) {
+  const campanhaIdPayload = Number(form.campanhaId)
+  const nome = form.nome.trim()
+  if (!campanhaIdPayload || !nome) {
+    return ''
+  }
+
+  return serializarPayload({
+    campanhaId: campanhaIdPayload,
+    dadosFichaJson: prepararFichaParaSalvar(form.ficha),
+    nome,
+    status: 'ATIVO',
+  })
+}
+
+function serializarPayload(payload: PersonagemCoc) {
+  return JSON.stringify(payload)
 }
 
 function preservarDadosFichaEnviados(personagem: PersonagemCoc, fichaEnviada: FichaCoc): PersonagemCoc {

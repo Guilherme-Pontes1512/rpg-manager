@@ -407,6 +407,59 @@ class RpgManagerApplicationTests {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    void deveListarApenasPersonagensDoUsuarioNaAbaGlobal() throws Exception {
+        Usuario mestre = criarUsuarioLocal("mestre-global", "mestre-global@example.com", "senha123");
+        Usuario playerUm = criarUsuarioLocal("player-global-um", "player-global-um@example.com", "senha123");
+        Usuario playerDois = criarUsuarioLocal("player-global-dois", "player-global-dois@example.com", "senha123");
+        Campanha campanha = campanhaRepository.save(new Campanha(null, "Sombras de Sao Raguel", "Campanha COC", SistemaEnum.COC, null));
+
+        campanhaMembrosRepository.save(new CampanhaMembro(null, campanha, mestre, CampanhaPapelEnum.MESTRE));
+        campanhaMembrosRepository.save(new CampanhaMembro(null, campanha, playerUm, CampanhaPapelEnum.JOGADOR));
+        campanhaMembrosRepository.save(new CampanhaMembro(null, campanha, playerDois, CampanhaPapelEnum.JOGADOR));
+
+        String personagemPlayerUm = objectMapper.writeValueAsString(personagemPayload(
+                campanha.getId(),
+                "Investigador Um",
+                "Historia um",
+                "Aparencia um",
+                "https://example.com/um.png",
+                "ATIVO"
+        ));
+        String personagemPlayerDois = objectMapper.writeValueAsString(personagemPayload(
+                campanha.getId(),
+                "Investigador Dois",
+                "Historia dois",
+                "Aparencia dois",
+                "https://example.com/dois.png",
+                "ATIVO"
+        ));
+
+        mockMvc.perform(post("/api/personagens/coc")
+                        .with(httpBasic(playerUm.getEmail(), "senha123"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(personagemPlayerUm))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/personagens/coc")
+                        .with(httpBasic(playerDois.getEmail(), "senha123"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(personagemPlayerDois))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/personagens/coc")
+                        .with(httpBasic(playerUm.getEmail(), "senha123")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].nome").value("Investigador Um"));
+
+        mockMvc.perform(get("/api/personagens/coc")
+                        .param("campanhaId", String.valueOf(campanha.getId()))
+                        .with(httpBasic(playerUm.getEmail(), "senha123")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2));
+    }
+
     private Usuario criarUsuarioLocal(String username, String email, String senha) {
         Usuario usuario = new Usuario();
         usuario.setNome(username);

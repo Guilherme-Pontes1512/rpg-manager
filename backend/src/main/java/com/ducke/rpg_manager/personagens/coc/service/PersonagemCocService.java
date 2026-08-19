@@ -47,7 +47,7 @@ public class PersonagemCocService {
         Long usuarioId = usuarioAtualService.getId();
 
         if (campanhaId == null) {
-            return cocRepository.findAllByUsuarioComAcesso(usuarioId)
+            return cocRepository.findAllByCampanhaMembroUsuarioId(usuarioId)
                     .stream()
                     .map(cocMapper::toResumoDto)
                     .toList();
@@ -92,7 +92,7 @@ public class PersonagemCocService {
 
     private CampanhaMembro obterMembroAtual(Long campanhaId, Long usuarioId) {
         return campanhaMembrosRepository.findByCampanhaIdAndUsuarioId(campanhaId, usuarioId)
-                .orElseThrow(() -> new AccessDeniedException("Voce nao tem acesso a esta campanha"));
+                .orElseThrow(() -> new AccessDeniedException("Você não tem acesso a esta campanha"));
     }
 
     private Personagem obterPersonagemPorId(Long id) {
@@ -108,7 +108,7 @@ public class PersonagemCocService {
         boolean isDonoDoPersonagem = personagem.getCampanhaMembro().getUsuario().getId().equals(usuarioId);
 
         if (!isMestre && !isDonoDoPersonagem) {
-            throw new AccessDeniedException("Apenas o mestre ou o dono do personagem podem acessar esta ficha");
+            throw new AccessDeniedException("Você não tem permissão para acessar este personagem");
         }
     }
 }
