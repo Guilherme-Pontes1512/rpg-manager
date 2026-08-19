@@ -9,48 +9,50 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper(componentModel = "spring")
-public interface PersonagemCocMapper {
+public abstract class PersonagemCocMapper {
 
-    ObjectMapper JSON = new ObjectMapper();
-
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "campanhaMembro", ignore = true)
-    @Mapping(target = "dadosFichaJson", source = "dadosFichaJson")
-    Personagem toEntity(PersonagemDto personagemDto);
+    @Autowired
+    protected ObjectMapper objectMapper;
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "campanhaMembro", ignore = true)
     @Mapping(target = "dadosFichaJson", source = "dadosFichaJson")
-    void updateEntity(@MappingTarget Personagem personagem, PersonagemDto personagemDto);
+    public abstract Personagem toEntity(PersonagemDto personagemDto);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "campanhaMembro", ignore = true)
+    @Mapping(target = "dadosFichaJson", source = "dadosFichaJson")
+    public abstract void updateEntity(@MappingTarget Personagem personagem, PersonagemDto personagemDto);
 
     @Mapping(target = "campanhaId", source = "campanhaMembro.campanha.id")
     @Mapping(target = "dadosFichaJson", source = "dadosFichaJson")
-    PersonagemDto toDto(Personagem personagem);
+    public abstract PersonagemDto toDto(Personagem personagem);
 
     @Mapping(target = "campanhaId", source = "campanhaMembro.campanha.id")
-    PersonagemResumoDto toResumoDto(Personagem personagem);
+    public abstract PersonagemResumoDto toResumoDto(Personagem personagem);
 
-    default String map(FichaSRCocDto ficha) {
+    protected String map(FichaSRCocDto ficha) {
         if (ficha == null) {
             return null;
         }
 
         try {
-            return JSON.writeValueAsString(ficha);
+            return objectMapper.writeValueAsString(ficha);
         } catch (JsonProcessingException ex) {
             throw new IllegalArgumentException("Nao foi possivel serializar a ficha do personagem", ex);
         }
     }
 
-    default FichaSRCocDto map(String value) {
+    protected FichaSRCocDto map(String value) {
         if (value == null || value.isBlank()) {
             return null;
         }
 
         try {
-            return JSON.readValue(value, FichaSRCocDto.class);
+            return objectMapper.readValue(value, FichaSRCocDto.class);
         } catch (JsonProcessingException ex) {
             throw new IllegalArgumentException("Nao foi possivel desserializar a ficha do personagem", ex);
         }

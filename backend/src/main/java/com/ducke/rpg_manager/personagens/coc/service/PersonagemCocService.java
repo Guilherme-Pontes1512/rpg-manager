@@ -3,6 +3,7 @@ package com.ducke.rpg_manager.personagens.coc.service;
 import com.ducke.rpg_manager.campanha_membros.entidade.CampanhaMembro;
 import com.ducke.rpg_manager.campanha_membros.repository.CampanhaMembrosRepository;
 import com.ducke.rpg_manager.campanha.enumx.CampanhaPapelEnum;
+import com.ducke.rpg_manager.campanha.service.CampanhaAcompanhamentoRealtimeService;
 import com.ducke.rpg_manager.personagens.coc.mapper.PersonagemCocMapper;
 import com.ducke.rpg_manager.personagens.coc.repository.PersonagemCocRepository;
 import com.ducke.rpg_manager.personagens.coc.validator.PersonagemCocValidator;
@@ -25,6 +26,7 @@ public class PersonagemCocService {
     private final PersonagemCocMapper cocMapper;
     private final PersonagemCocRepository cocRepository;
     private final CampanhaMembrosRepository campanhaMembrosRepository;
+    private final CampanhaAcompanhamentoRealtimeService realtimeService;
     private final UsuarioAtualService usuarioAtualService;
 
     public PersonagemDto criarPersonagemCoc(PersonagemDto personagemDto) {
@@ -36,6 +38,7 @@ public class PersonagemCocService {
         Personagem personagem = cocMapper.toEntity(personagemDto);
         personagem.setCampanhaMembro(campanhaMembro);
         cocRepository.save(personagem);
+        realtimeService.notificarFichaAtualizada(campanhaMembro.getCampanha().getId());
 
         return cocMapper.toDto(personagem);
     }
@@ -73,6 +76,7 @@ public class PersonagemCocService {
 
         cocMapper.updateEntity(personagemExistente, personagemDto);
         cocRepository.save(personagemExistente);
+        realtimeService.notificarFichaAtualizada(personagemExistente.getCampanhaMembro().getCampanha().getId());
 
         return cocMapper.toDto(personagemExistente);
     }
@@ -81,7 +85,9 @@ public class PersonagemCocService {
         Personagem personagem = obterPersonagemPorId(id);
         validarPermissaoSobrePersonagem(personagem);
 
+        Long campanhaId = personagem.getCampanhaMembro().getCampanha().getId();
         cocRepository.delete(personagem);
+        realtimeService.notificarFichaAtualizada(campanhaId);
     }
 
     private CampanhaMembro obterMembroAtual(Long campanhaId, Long usuarioId) {

@@ -41,9 +41,7 @@ type AtributoConfig = {
 
 type CharacterViewMode = 'lista' | 'formulario'
 
-type OrigemCoc = {
-  buff: string
-  habilidade: string
+type OcupacaoCoc = {
   nome: string
   pericias: string
 }
@@ -63,100 +61,83 @@ const ATRIBUTOS: AtributoConfig[] = [
 ]
 
 const PERICIAS_INICIAIS: PericiaCoc[] = [
-  { nome: 'Atirar', base: 10, valor: 0 },
-  { nome: 'Atletismo', base: 20, valor: 0 },
-  { nome: 'Ciencias', base: 10, valor: 0 },
-  { nome: 'Furtividade', base: 15, valor: 0 },
-  { nome: 'Historia', base: 10, valor: 0 },
-  { nome: 'Intimidacao', base: 15, valor: 0 },
-  { nome: 'Investigacao', base: 20, valor: 0 },
-  { nome: 'Labia', base: 15, valor: 0 },
-  { nome: 'Lutar', base: 20, valor: 0 },
-  { nome: 'Mecanica', base: 10, valor: 0 },
-  { nome: 'Medicina', base: 5, valor: 0 },
-  { nome: 'Ocultismo', base: 5, valor: 0 },
-  { nome: 'Percepcao', base: 20, valor: 0 },
-  { nome: 'Pilotagem', base: 20, valor: 0 },
-  { nome: 'Prestidigitacao', base: 10, valor: 0 },
-  { nome: 'Primeiros Socorros', base: 15, valor: 0 },
-  { nome: 'Psicologia', base: 10, valor: 0 },
-  { nome: 'Tecnologia', base: 10, valor: 0 },
+  { nome: 'Atirar', base: 10, valor: 0, marcada: false },
+  { nome: 'Atletismo', base: 15, valor: 0, marcada: false },
+  { nome: 'Condução', base: 10, valor: 0, marcada: false },
+  { nome: 'Furtividade', base: 15, valor: 0, marcada: false },
+  { nome: 'História', base: 10, valor: 0, marcada: false },
+  { nome: 'Intimidação', base: 15, valor: 0, marcada: false },
+  { nome: 'Investigação', base: 15, valor: 0, marcada: false },
+  { nome: 'Lábia', base: 15, valor: 0, marcada: false },
+  { nome: 'Lutar', base: 20, valor: 0, marcada: false },
+  { nome: 'Mecânica', base: 10, valor: 0, marcada: false },
+  { nome: 'Medicina', base: 5, valor: 0, marcada: false },
+  { nome: 'Ocultismo', base: 5, valor: 0, marcada: false },
+  { nome: 'Percepção', base: 20, valor: 0, marcada: false },
+  { nome: 'Prestidigitação', base: 10, valor: 0, marcada: false },
+  { nome: 'Primeiros Socorros', base: 15, valor: 0, marcada: false },
+  { nome: 'Psicologia', base: 10, valor: 0, marcada: false },
+  { nome: 'Tecnologia', base: 10, valor: 0, marcada: false },
 ]
 
-const ORIGENS: OrigemCoc[] = [
+const OCUPACOES: OcupacaoCoc[] = [
   {
     nome: 'Acadêmico',
-    habilidade: 'Conhecimento aplicado',
-    buff: 'Recebe +10% em um teste de pericia que nao seja de combate. Uma vez por cena.',
-    pericias: 'Ciências e História',
+    pericias: 'História, Investigação, Lábia, Ocultismo, Psicologia e Tecnologia',
   },
   {
     nome: 'Agente de Saúde',
-    habilidade: 'Tecnica medicinal',
-    buff: 'Cura +1d4 quando fizer um teste de Primeiros Socorros. Uma vez por cena. Alem disso, pode usar Medicina no lugar de Primeiros Socorros.',
-    pericias: 'Medicina/Primeiros socorros e Ciências',
+    pericias: 'Investigação, Lábia, Medicina, Percepção, Primeiros Socorros e Psicologia',
+  },
+  {
+    nome: 'Artista',
+    pericias: 'História, Lábia, Percepção, Prestidigitação, Psicologia e Furtividade',
   },
   {
     nome: 'Atleta',
-    habilidade: 'Condicionamento extremo',
-    buff: 'Ignora penalidades de terreno difícil e exaustão.',
-    pericias: 'Atletismo e Percepção',
+    pericias: 'Atirar, Atletismo, Condução, Intimidação, Lutar e Percepção',
   },
   {
     nome: 'Criminoso',
-    habilidade: 'Jogo sujo',
-    buff: 'Substitui um teste, que não seja de combate, por Lábia ou Prestidigitação. Uma vez por sessão.',
-    pericias: 'Furtividade e Prestidigitação',
+    pericias: 'Atirar, Furtividade, Intimidação, Lábia, Lutar e Prestidigitação',
   },
   {
-    nome: 'Cultista Arrependido',
-    habilidade: 'Conhecimento proibido',
-    buff: 'Pode receber vantagem em um teste, em troca de -1 de sanidade.',
-    pericias: 'Ocultismo e Psicologia',
+    nome: 'Explorador',
+    pericias: 'Atletismo, Condução, Furtividade, Investigação, Percepção e Primeiros Socorros',
   },
   {
     nome: 'Investigador',
-    habilidade: 'Faro pra pistas',
-    buff: 'Pode refazer um teste de Investigação falho. Uma vez por cena.',
-    pericias: 'Investigação e Percepção',
+    pericias: 'Atirar, Furtividade, Investigação, Lábia, Percepção e Psicologia',
   },
   {
-    nome: 'Lutador',
-    habilidade: 'Mão pesada',
-    buff: 'Causa +1 de dano corpo a corpo.',
-    pericias: 'Lutar e Atletismo',
-  },
-  {
-    nome: 'Mercenário',
-    habilidade: 'Treino de combate',
-    buff: 'Saca, guarda e recarrega armas de fogo livremente. Uma vez por turno.',
-    pericias: 'Furtividade e Atirar',
+    nome: 'Militar',
+    pericias: 'Atirar, Atletismo, Furtividade, Intimidação, Lutar e Primeiros Socorros',
   },
   {
     nome: 'Policial',
-    habilidade: 'Alerta constante',
-    buff: 'Recebe +1 de redução de dano.',
-    pericias: 'Atirar e Atletismo',
+    pericias: 'Atirar, Atletismo, Condução, Investigação, Intimidação e Percepção',
   },
   {
-    nome: 'Psicólogo',
-    habilidade: 'Terapia emocional',
-    buff: 'Cura +1 de sanidade de até dois alvos. Uma vez por sessão.',
-    pericias: 'Psicologia e Ciências',
+    nome: 'Profissional',
+    pericias: 'História, Intimidação, Investigação, Lábia, Percepção e Psicologia',
   },
   {
     nome: 'Religioso',
-    habilidade: 'Palavra de esperança',
-    buff: 'Remove uma condição de Loucura temporária de um aliado. Uma vez por sessão.',
-    pericias: 'História e Psicologia',
+    pericias: 'História, Investigação, Lábia, Ocultismo, Primeiros Socorros e Psicologia',
+  },
+  {
+    nome: 'Socialite',
+    pericias: 'Intimidação, Lábia, Percepção, Prestidigitação, Psicologia e Sorte (2:1)',
   },
   {
     nome: 'Técnico',
-    habilidade: 'Procedimento técnico',
-    buff: 'Usando ferramenta ou dispositivo tecnológico e gastar mais tempo, reduz em um nível a dificuldade de um teste. Uma vez por cena.',
-    pericias: 'Mecânica e Tecnologia',
+    pericias: 'Condução, Investigação, Mecânica, Percepção, Prestidigitação e Tecnologia',
   },
-]
+  {
+    nome: 'Trabalhador',
+    pericias: 'Atletismo, Condução, Intimidação, Lutar, Mecânica e Percepção',
+  },
+];
 
 const SECOES_COLAPSAVEIS: SecaoColapsavel[] = [
   { field: 'anotacoes', label: 'Anotações'},
@@ -171,18 +152,20 @@ const ALPHANUMERIC_PATTERN = '[A-Za-zÀ-ÖØ-öø-ÿ0-9 ]*'
 function criarFichaInicial(): FichaCoc {
   return {
     atributos: {
-      constituicao: 50,
-      destreza: 50,
-      forca: 50,
-      inteligencia: 50,
-      presenca: 50,
-      vontade: 50,
+      constituicao: 0,
+      destreza: 0,
+      forca: 0,
+      inteligencia: 0,
+      presenca: 0,
+      vontade: 0,
     },
     armas: [],
+    esquiva: 0,
     pericias: PERICIAS_INICIAIS.map((pericia) => ({ ...pericia })),
-    pontosDeDestino: 0,
+    profissao: '',
     rituais: [],
     sanidade: 0,
+    sorte: 50,
     vidaAtual: 10,
     vidaMaxima: 10,
   }
@@ -216,6 +199,7 @@ export function TelaPersonagemCoc({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [saving, setSaving] = useState(false)
   const [vidaMaximaEmEdicao, setVidaMaximaEmEdicao] = useState<string | null>(null)
+  const [esquivaManual, setEsquivaManual] = useState(false)
   const [viewMode, setViewMode] = useState<CharacterViewMode>('lista')
 
   useEffect(() => {
@@ -279,26 +263,44 @@ export function TelaPersonagemCoc({
 
   function carregarNoFormulario(personagem: PersonagemCoc) {
     const fichaPadrao = criarFichaInicial()
+    const atributos = {
+      ...fichaPadrao.atributos,
+      ...personagem.dadosFichaJson.atributos,
+    }
+    const esquiva = personagem.dadosFichaJson.esquiva ?? calcularEsquiva(atributos.destreza)
+    const sorte = personagem.dadosFichaJson.sorte ?? personagem.dadosFichaJson.pontosDeDestino ?? fichaPadrao.sorte
+    const ocupacao = obterOcupacaoFicha(personagem.dadosFichaJson)
+    const ocupacaoPericias = personagem.dadosFichaJson.ocupacaoPericias
+      ?? personagem.dadosFichaJson.origemPericias
+      ?? OCUPACOES.find((item) => item.nome === ocupacao)?.pericias
+      ?? ''
+
     setForm({
       campanhaId: String(personagem.campanhaId),
       ficha: {
         ...fichaPadrao,
         ...personagem.dadosFichaJson,
-        atributos: {
-          ...fichaPadrao.atributos,
-          ...personagem.dadosFichaJson.atributos,
-        },
+        atributos,
+        esquiva,
         pericias:
           personagem.dadosFichaJson.pericias?.length > 0
             ? normalizarPericias(personagem.dadosFichaJson.pericias)
             : fichaPadrao.pericias,
         armas: normalizarArmas(personagem.dadosFichaJson.armas),
+        ocupacao,
+        ocupacaoPericias,
+        profissao: obterProfissaoFicha(personagem.dadosFichaJson),
         rituais: normalizarRituais(personagem.dadosFichaJson.rituais),
+        origem: undefined,
+        origemPericias: undefined,
+        pontosDeDestino: undefined,
+        sorte,
       },
       id: personagem.id,
       imageUrl: personagem.imageUrl ?? '',
       nome: personagem.nome,
     })
+    setEsquivaManual(esquiva !== calcularEsquiva(atributos.destreza))
     setViewMode('formulario')
   }
 
@@ -322,6 +324,7 @@ export function TelaPersonagemCoc({
 
   function iniciarNovaFicha() {
     setForm(criarFormularioInicial(campanhaIdFixo))
+    setEsquivaManual(false)
     setViewMode('formulario')
   }
 
@@ -364,7 +367,7 @@ export function TelaPersonagemCoc({
     try {
       const payload: PersonagemCoc = {
         campanhaId: campanhaIdPayload,
-        dadosFichaJson: form.ficha,
+        dadosFichaJson: prepararFichaParaSalvar(form.ficha),
         nome: form.nome.trim(),
         status: 'ATIVO',
       }
@@ -373,7 +376,7 @@ export function TelaPersonagemCoc({
         ? await atualizarPersonagemCoc(token, form.id, payload)
         : await criarPersonagemCoc(token, payload)
 
-      carregarNoFormulario(salvo)
+      carregarNoFormulario(preservarDadosFichaEnviados(salvo, payload.dadosFichaJson))
       await carregarPersonagens()
       notify('success', 'Ficha de personagem salva.')
     } catch (caughtError) {
@@ -385,16 +388,26 @@ export function TelaPersonagemCoc({
 
   function atualizarAtributo(field: keyof AtributosCoc, value: string) {
     const numero = normalizarNumeroTresDigitos(value)
-    setForm((current) => ({
-      ...current,
-      ficha: {
-        ...current.ficha,
-        atributos: {
-          ...current.ficha.atributos,
-          [field]: numero,
+    setForm((current) => {
+      const atributos = {
+        ...current.ficha.atributos,
+        [field]: numero,
+      }
+
+      return {
+        ...current,
+        ficha: {
+          ...current.ficha,
+          atributos,
+          esquiva: field === 'destreza' && !esquivaManual ? calcularEsquiva(numero) : current.ficha.esquiva,
         },
-      },
-    }))
+      }
+    })
+  }
+
+  function atualizarEsquiva(value: string) {
+    setEsquivaManual(true)
+    atualizarCampoFicha('esquiva', normalizarNumeroTresDigitos(value))
   }
 
   function atualizarVida(delta: number) {
@@ -463,6 +476,18 @@ export function TelaPersonagemCoc({
         ...current.ficha,
         pericias: current.ficha.pericias.map((pericia, periciaIndex) =>
           periciaIndex === index ? { ...pericia, valor: numero } : pericia,
+        ),
+      },
+    }))
+  }
+
+  function atualizarPericiaMarcada(index: number, marcada: boolean) {
+    setForm((current) => ({
+      ...current,
+      ficha: {
+        ...current.ficha,
+        pericias: current.ficha.pericias.map((pericia, periciaIndex) =>
+          periciaIndex === index ? { ...pericia, marcada } : pericia,
         ),
       },
     }))
@@ -584,16 +609,16 @@ export function TelaPersonagemCoc({
     }))
   }
 
-  function atualizarOrigem(nome: string) {
-    const origem = ORIGENS.find((item) => item.nome === nome)
+  function atualizarOcupacao(nome: string) {
+    const ocupacao = OCUPACOES.find((item) => item.nome === nome)
     setForm((current) => ({
       ...current,
       ficha: {
         ...current.ficha,
-        origem: origem?.nome ?? '',
-        origemBuff: origem?.buff ?? '',
-        origemHabilidade: origem?.habilidade ?? '',
-        origemPericias: origem?.pericias ?? '',
+        ocupacao: ocupacao?.nome ?? '',
+        ocupacaoPericias: ocupacao?.pericias ?? '',
+        origem: undefined,
+        origemPericias: undefined,
       },
     }))
   }
@@ -805,49 +830,60 @@ export function TelaPersonagemCoc({
                   ))}
                 </div>
 
-                <fieldset className="coc-destiny">
-                  <legend>Pontos de destino</legend>
-                  {[1, 2, 3].map((ponto) => (
-                    <label key={ponto}>
-                      <input
-                        checked={form.ficha.pontosDeDestino >= ponto}
-                        type="checkbox"
-                        onChange={() =>
-                          atualizarCampoFicha(
-                            'pontosDeDestino',
-                            form.ficha.pontosDeDestino === ponto ? ponto - 1 : ponto,
-                          )
-                        }
-                      />
-                      <span />
-                    </label>
-                  ))}
-                </fieldset>
+                <div className="coc-vital-field">
+                  <label>
+                    Esquiva
+                    <input
+                      inputMode="numeric"
+                      maxLength={3}
+                      pattern="[0-9]*"
+                      value={form.ficha.esquiva}
+                      onChange={(event) => atualizarEsquiva(event.target.value)}
+                    />
+                  </label>
+                </div>
+
+                <div className="coc-vital-field">
+                  <label>
+                    Sorte
+                    <input
+                      inputMode="numeric"
+                      maxLength={3}
+                      pattern="[0-9]*"
+                      value={form.ficha.sorte}
+                      onChange={(event) => atualizarCampoFicha('sorte', normalizarNumeroTresDigitos(event.target.value))}
+                    />
+                  </label>
+                </div>
 
                 <section className="coc-origin-panel">
-                  <h2>Origem</h2>
+                  <h2>Ocupação</h2>
                   <label>
-                    Selecione uma origem
+                    Selecione uma ocupação
                     <select
-                      value={form.ficha.origem ?? ''}
-                      onChange={(event) => atualizarOrigem(event.target.value)}
+                      value={obterOcupacaoFicha(form.ficha)}
+                      onChange={(event) => atualizarOcupacao(event.target.value)}
                     >
                       <option value="">Escolha...</option>
-                      {ORIGENS.map((origem) => (
-                        <option key={origem.nome} value={origem.nome}>
-                          {origem.nome}
+                      {OCUPACOES.map((ocupacao) => (
+                        <option key={ocupacao.nome} value={ocupacao.nome}>
+                          {ocupacao.nome}
                         </option>
                       ))}
                     </select>
                   </label>
-                  {form.ficha.origem ? (
+                  <label>
+                    Profissão
+                    <input
+                      value={form.ficha.profissao ?? ''}
+                      onChange={(event) => atualizarCampoFicha('profissao', event.target.value)}
+                      placeholder="Ex.: professor universitário"
+                    />
+                  </label>
+                  {obterOcupacaoFicha(form.ficha) ? (
                     <dl className="coc-origin-details">
-                      <dt>Habilidade</dt>
-                      <dd>{form.ficha.origemHabilidade}</dd>
-                      <dt>Buff</dt>
-                      <dd>{form.ficha.origemBuff}</dd>
-                      <dt>Pericias</dt>
-                      <dd>{form.ficha.origemPericias}</dd>
+                      <dt>Perícias</dt>
+                      <dd>{form.ficha.ocupacaoPericias}</dd>
                     </dl>
                   ) : null}
                 </section>
@@ -862,6 +898,12 @@ export function TelaPersonagemCoc({
                   {form.ficha.pericias.map((pericia, index) => (
                     <div className="coc-skill" key={pericia.nome}>
                       <span className="coc-skill-name">
+                        <input
+                          type="checkbox"
+                          checked={pericia.marcada ?? false}
+                          onChange={(event) => atualizarPericiaMarcada(index, event.target.checked)}
+                          aria-label={`Marcar ${pericia.nome}`}
+                        />
                         <button
                           type="button"
                           className="coc-skill-roll"
@@ -1103,6 +1145,47 @@ function normalizarNumeroTresDigitos(value: string) {
   return digits ? Number(digits) : 0
 }
 
+function calcularEsquiva(destreza: number) {
+  return Math.floor(destreza / 2)
+}
+
+function prepararFichaParaSalvar(ficha: FichaCoc): FichaCoc {
+  const { pontosDeDestino, ...fichaAtualizada } = ficha
+  const ocupacao = obterOcupacaoFicha(fichaAtualizada)
+  const ocupacaoPericias = OCUPACOES.find((item) => item.nome === ocupacao)?.pericias ?? fichaAtualizada.ocupacaoPericias ?? ''
+
+  return {
+    ...fichaAtualizada,
+    ocupacao,
+    ocupacaoPericias,
+    pericias: fichaAtualizada.pericias.map((pericia) => ({
+      ...pericia,
+      marcada: pericia.marcada ?? false,
+    })),
+    profissao: obterProfissaoFicha(fichaAtualizada).trim(),
+    origem: undefined,
+    origemPericias: undefined,
+  }
+}
+
+function preservarDadosFichaEnviados(personagem: PersonagemCoc, fichaEnviada: FichaCoc): PersonagemCoc {
+  const profissaoSalva = personagem.dadosFichaJson.profissao?.trim()
+  const marcacoesEnviadas = new Map(fichaEnviada.pericias.map((pericia) => [pericia.nome, pericia.marcada ?? false]))
+  const pericias = personagem.dadosFichaJson.pericias?.map((pericia) => ({
+    ...pericia,
+    marcada: pericia.marcada ?? marcacoesEnviadas.get(pericia.nome) ?? false,
+  }))
+
+  return {
+    ...personagem,
+    dadosFichaJson: {
+      ...personagem.dadosFichaJson,
+      pericias: pericias ?? fichaEnviada.pericias,
+      profissao: profissaoSalva ? personagem.dadosFichaJson.profissao : fichaEnviada.profissao ?? '',
+    },
+  }
+}
+
 function normalizarAlfanumerico(value: string) {
   return value.replace(/[^A-Za-zÀ-ÖØ-öø-ÿ0-9 ]/g, '')
 }
@@ -1159,7 +1242,32 @@ function normalizarPericias(pericias: PericiaCoc[]) {
   return pericias.map((pericia) => ({
     ...pericia,
     base: pericia.base ?? PERICIAS_INICIAIS.find(({ nome }) => nome === pericia.nome)?.base ?? 0,
+    marcada: pericia.marcada ?? false,
   }))
+}
+
+function ocupacaoExiste(nome?: string) {
+  return Boolean(nome && OCUPACOES.some((ocupacao) => ocupacao.nome === nome))
+}
+
+function obterOcupacaoFicha(ficha: FichaCoc) {
+  if (ocupacaoExiste(ficha.ocupacao)) {
+    return ficha.ocupacao ?? ''
+  }
+
+  if (ocupacaoExiste(ficha.origem)) {
+    return ficha.origem ?? ''
+  }
+
+  return ficha.ocupacao ?? ficha.origem ?? ''
+}
+
+function obterProfissaoFicha(ficha: FichaCoc) {
+  if (ficha.profissao !== undefined) {
+    return ficha.profissao
+  }
+
+  return ficha.ocupacao && !ocupacaoExiste(ficha.ocupacao) ? ficha.ocupacao : ''
 }
 
 function normalizarArmas(armas: unknown): ArmaCoc[] {
