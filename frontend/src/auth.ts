@@ -71,34 +71,6 @@ export async function register(input: RegisterInput): Promise<AuthUser> {
   return response.json()
 }
 
-export async function verifyEmail(token: string): Promise<AuthUser> {
-  const response = await fetch(`/api/auth/verify-email?token=${encodeURIComponent(token)}`)
-
-  if (!response.ok) {
-    const error = await readError(response)
-    throw new Error(error)
-  }
-
-  return response.json()
-}
-
-export async function resendVerificationEmail(email: string): Promise<AuthAction> {
-  const response = await fetch('/api/auth/resend-verification', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ email }),
-  })
-
-  if (!response.ok) {
-    const error = await readError(response)
-    throw new Error(error)
-  }
-
-  return response.json()
-}
-
 export async function forgotPassword(email: string): Promise<AuthAction> {
   const response = await fetch('/api/auth/forgot-password', {
     method: 'POST',

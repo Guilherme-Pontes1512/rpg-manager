@@ -96,39 +96,14 @@ class RpgManagerApplicationTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value("alice@example.com"))
                 .andExpect(jsonPath("$.username").value("alice"))
-                .andExpect(jsonPath("$.emailVerificado").value(false));
-
-        String token = usuarioEmailVerificacaoRepository.findAll().getFirst().getToken();
-
-        mockMvc.perform(get("/api/auth/me")
-                        .with(httpBasic("alice@example.com", "123456")))
-                .andExpect(status().isUnauthorized());
-
-        String tokenAnterior = token;
-
-        mockMvc.perform(post("/api/auth/resend-verification")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                  "email": "alice@example.com"
-                                }
-                                """))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").exists());
-
-        String novoToken = usuarioEmailVerificacaoRepository.findAll().getFirst().getToken();
-        org.junit.jupiter.api.Assertions.assertNotEquals(tokenAnterior, novoToken);
-
-        mockMvc.perform(get("/api/auth/verify-email")
-                        .param("token", novoToken))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value("alice@example.com"))
                 .andExpect(jsonPath("$.emailVerificado").value(true));
 
         mockMvc.perform(get("/api/auth/me")
                         .with(httpBasic("alice@example.com", "123456")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.emailVerificado").value(true));
+
+        org.junit.jupiter.api.Assertions.assertTrue(usuarioEmailVerificacaoRepository.findAll().isEmpty());
     }
 
     @Test

@@ -15,8 +15,8 @@ public interface UsuarioMapper {
     @Mapping(target = "senha", ignore = true)
     @Mapping(target = "authProvider", expression = "java(com.ducke.rpg_manager.usuario.enumx.AuthProviderEnum.LOCAL)")
     @Mapping(target = "providerUserId", ignore = true)
-    @Mapping(target = "emailVerificado", constant = "false")
-    @Mapping(target = "emailVerificadoEm", ignore = true)
+    @Mapping(target = "emailVerificado", constant = "true")
+    @Mapping(target = "emailVerificadoEm", expression = "java(java.time.Instant.now())")
     Usuario toEntity(AuthRegisterInput input);
 
     AuthUserOutput toAuthOutput(Usuario usuario);

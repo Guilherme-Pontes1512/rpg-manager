@@ -5,9 +5,7 @@ import {
   forgotPassword,
   login,
   register,
-  resendVerificationEmail,
   resetPassword,
-  verifyEmail,
   type AuthUser,
   type RegisterInput,
 } from '../auth'
@@ -57,15 +55,12 @@ export function TelaAutenticacao({
   const [forgotPasswordForm, setForgotPasswordForm] = useState<ForgotPasswordState>(initialForgotPassword)
   const [resetPasswordForm, setResetPasswordForm] = useState<ResetPasswordState>(initialResetPassword)
   const [resetPasswordToken, setResetPasswordToken] = useState<string | null>(null)
-  const [registrationNoticeOpen, setRegistrationNoticeOpen] = useState(false)
-  const [verificationEmail, setVerificationEmail] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
-    const verifyToken = params.get('verifyEmailToken')
     const resetToken = params.get('resetPasswordToken')
 
     if (resetToken) {
@@ -75,31 +70,6 @@ export function TelaAutenticacao({
       setSuccess('')
       return
     }
-
-    if (!verifyToken) {
-      return
-    }
-
-    setSubmitting(true)
-    setError('')
-    setSuccess('')
-
-    verifyEmail(verifyToken)
-      .then(() => {
-        setMode('login')
-        setSuccess('Email confirmado com sucesso. Agora voce ja pode fazer login.')
-        window.history.replaceState({}, '', window.location.pathname)
-      })
-      .catch((caughtError) => {
-        const message =
-          caughtError instanceof Error
-            ? caughtError.message
-            : 'Nao foi possivel confirmar seu email.'
-        setError(message)
-      })
-      .finally(() => {
-        setSubmitting(false)
-      })
   }, [])
 
   async function handleLogin(event: FormEvent<HTMLFormElement>) {
@@ -113,7 +83,7 @@ export function TelaAutenticacao({
       setLoginForm(initialLogin)
       onAuthenticated(currentUser)
     } catch {
-      setError('Email ou senha invalidos. Se voce acabou de se cadastrar, confirme seu email antes de entrar.')
+      setError('Email ou senha invalidos.')
     } finally {
       setSubmitting(false)
     }
@@ -133,7 +103,6 @@ export function TelaAutenticacao({
 
     try {
       await register(registerForm)
-      setVerificationEmail(registerForm.email)
       setLoginForm({
         email: registerForm.email,
         senha: '',
@@ -143,8 +112,7 @@ export function TelaAutenticacao({
       })
       setRegisterForm(initialRegister)
       setMode('login')
-      setRegistrationNoticeOpen(true)
-      setSuccess('')
+      setSuccess('Conta criada com sucesso. Voce ja pode fazer login.')
     } catch (caughtError) {
       const message =
         caughtError instanceof Error
@@ -182,32 +150,6 @@ export function TelaAutenticacao({
       ...current,
       [field]: value,
     }))
-  }
-
-  async function handleResendVerification(emailParam?: string) {
-    const email = emailParam?.trim() || verificationEmail.trim() || loginForm.email.trim() || registerForm.email.trim()
-    if (!email) {
-      setError('Informe seu email para reenviar a confirmacao.')
-      setSuccess('')
-      return
-    }
-
-    setSubmitting(true)
-    setError('')
-    setSuccess('')
-
-    try {
-      const response = await resendVerificationEmail(email)
-      setSuccess(response.message)
-    } catch (caughtError) {
-      const message =
-        caughtError instanceof Error
-          ? caughtError.message
-          : 'Nao foi possivel reenviar o email de confirmacao.'
-      setError(message)
-    } finally {
-      setSubmitting(false)
-    }
   }
 
   async function handleForgotPassword(event: FormEvent<HTMLFormElement>) {
@@ -358,36 +300,6 @@ export function TelaAutenticacao({
         </>
       </section>
 
-      {registrationNoticeOpen ? (
-        <div className="auth-modal-backdrop" role="presentation">
-          <div className="auth-modal" role="dialog" aria-modal="true" aria-labelledby="registration-notice-title">
-            <h2 id="registration-notice-title">Verifique seu email</h2>
-            <p>
-              Enviamos um email de confirmacao para <strong>{verificationEmail}</strong>. Voce precisa confirmar esse
-              email antes do primeiro login.
-            </p>
-            <p className="auth-modal-footer">
-              Nao recebeu?
-              {' '}
-              <button
-                className="auth-text-link"
-                type="button"
-                onClick={() => void handleResendVerification(verificationEmail)}
-                disabled={submitting}
-              >
-                Reenviar email
-              </button>
-            </p>
-            {error ? <p className="form-error">{error}</p> : null}
-            {success ? <p className="form-success">{success}</p> : null}
-            <div className="auth-modal-actions">
-              <button className="primary-button" type="button" onClick={() => setRegistrationNoticeOpen(false)}>
-                Entendi
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
     </main>
   )
 }

@@ -22,7 +22,6 @@ public class UsuarioService {
     private final UsuarioMapper usuarioMapper;
     private final PasswordEncoder passwordEncoder;
     private final UsuarioAtualService usuarioAtualService;
-    private final UsuarioEmailVerificacaoService usuarioEmailVerificacaoService;
     private final UsuarioRecuperacaoSenhaService usuarioRecuperacaoSenhaService;
 
     public AuthUserOutput cadastrar(AuthRegisterInput input) {
@@ -31,26 +30,12 @@ public class UsuarioService {
         Usuario entity = usuarioMapper.toEntity(input);
         entity.setSenha(passwordEncoder.encode(input.senha()));
         usuarioRepository.save(entity);
-        usuarioEmailVerificacaoService.criarEEnviarToken(entity);
 
         return usuarioMapper.toAuthOutput(entity);
     }
 
-    public AuthUserOutput confirmarEmail(String token) {
-        Usuario usuario = usuarioEmailVerificacaoService.confirmarEmail(token);
-        return usuarioMapper.toAuthOutput(usuario);
-    }
-
     public AuthUserOutput obterUsuarioAtual() {
         return usuarioMapper.toAuthOutput(usuarioAtualService.getRequired());
-    }
-
-    public AuthActionOutput reenviarVerificacaoEmail(AuthEmailInput input) {
-        usuarioRepository.findByEmailIgnoreCase(input.email())
-                .filter(usuario -> !usuario.isEmailVerificado())
-                .ifPresent(usuarioEmailVerificacaoService::criarEEnviarToken);
-
-        return new AuthActionOutput("Se existir uma conta pendente de confirmacao, enviaremos um novo email.");
     }
 
     public AuthActionOutput solicitarRecuperacaoSenha(AuthEmailInput input) {
