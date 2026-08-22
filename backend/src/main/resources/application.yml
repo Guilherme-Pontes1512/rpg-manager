@@ -1,0 +1,46 @@
+server:
+  port: ${PORT:8080}
+
+spring:
+  config:
+    import:
+      - optional:file:.env[.properties]
+      - optional:file:backend/.env[.properties]
+
+  application:
+    name: rpg-manager
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  profiles:
+    active: dev, mysql
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate # com liquibase, evita o Hibernate mexer no schema
+    properties:
+      hibernate:
+        format_sql: true
+
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    # org.hibernate.orm.jdbc.bind: trace  # liga se quiser ver valores dos params
+
+app:
+  email:
+    enabled: ${APP_EMAIL_ENABLED:true}
+    host: smtp.gmail.com
+    port: 587
+    username: rpg.manager.web@gmail.com
+    password: ${SMTP_PASSWORD:}
+    from: rpg.manager.web@gmail.com
+    frontend-base-url: ${FRONTEND_BASE_URL:http://localhost:5173}

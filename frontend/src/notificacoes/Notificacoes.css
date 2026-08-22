@@ -1,0 +1,38 @@
+.notifications-layer {
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: grid;
+  gap: 10px;
+  width: min(92vw, 560px);
+  pointer-events: none;
+}
+
+.notification-toast {
+  border-radius: 18px;
+  padding: 14px 18px;
+  font-weight: 700;
+  box-shadow: var(--notification-shadow);
+  border: 1px solid transparent;
+  backdrop-filter: blur(12px);
+}
+
+.notification-success {
+  background: rgba(228, 247, 236, 0.96);
+  color: #17603a;
+  border-color: rgba(23, 96, 58, 0.18);
+}
+
+.notification-error {
+  background: rgba(252, 232, 232, 0.98);
+  color: #9a2626;
+  border-color: rgba(154, 38, 38, 0.18);
+}
+
+.notification-info {
+  background: rgba(232, 242, 255, 0.96);
+  color: #1b4f8a;
+  border-color: rgba(27, 79, 138, 0.18);
+}

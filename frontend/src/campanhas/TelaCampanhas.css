@@ -1,0 +1,315 @@
+.campaigns-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.campaigns-topline {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: end;
+}
+
+.campaigns-topline h1 {
+  margin: 8px 0 0;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 0.95;
+}
+
+.campaigns-topline p {
+  max-width: 24rem;
+  margin: 0;
+  color: var(--muted);
+}
+
+.campaigns-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.campaign-form-view {
+  display: grid;
+  gap: 18px;
+}
+
+.campaign-form-toolbar {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.campaign-list-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.campaign-list-header h2,
+.editor-header h2,
+.players-header h3 {
+  margin: 8px 0 0;
+}
+
+.panel-hint {
+  margin: 0;
+  color: var(--muted);
+}
+
+.campaign-empty-state {
+  text-align: center;
+}
+
+.campaign-card-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.campaign-card {
+  border-radius: 28px;
+  padding: 24px;
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
+  text-align: left;
+  position: relative;
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease,
+    background 140ms ease;
+}
+
+.campaign-card-actions {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  display: flex;
+  gap: 8px;
+}
+
+.card-icon-button {
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: var(--icon-button-bg);
+  color: var(--icon-button-text);
+  cursor: pointer;
+}
+
+.card-icon-button svg {
+  width: 18px;
+  height: 18px;
+}
+
+.card-icon-button.danger {
+  background: var(--icon-button-danger-bg);
+  color: var(--icon-button-danger-text);
+}
+
+.campaign-role-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.role-mestre {
+  color: #6c2bd9;
+  background: rgba(108, 43, 217, 0.1);
+  border-color: rgba(108, 43, 217, 0.28);
+  box-shadow: inset 0 0 0 1px rgba(108, 43, 217, 0.06);
+}
+
+.role-jogador {
+  color: #1d7a43;
+  background: rgba(29, 122, 67, 0.1);
+  border-color: rgba(29, 122, 67, 0.28);
+  box-shadow: inset 0 0 0 1px rgba(29, 122, 67, 0.06);
+}
+
+.campaign-card:hover,
+.campaign-card.active {
+  transform: translateY(-2px);
+  box-shadow: var(--card-shadow-hover);
+  background: var(--card-bg-hover);
+}
+
+.campaign-card strong {
+  display: block;
+  margin-top: 12px;
+  font-size: 1.25rem;
+}
+
+.campaign-card p {
+  margin: 10px 0 18px;
+  color: var(--muted);
+}
+
+.campaign-card dl {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+
+.campaign-card dt {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+
+.campaign-card dd {
+  margin: 4px 0 0;
+  font-weight: 700;
+}
+
+.campaign-open-button {
+  margin-top: 20px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: var(--ghost-text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.campaign-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.editor-header,
+.players-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: start;
+}
+
+.campaign-form {
+  display: grid;
+  gap: 16px;
+}
+
+.campaign-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
+.campaign-form select,
+.campaign-form textarea {
+  width: 100%;
+  border: 1px solid var(--input-border);
+  border-radius: 18px;
+  padding: 15px 16px;
+  background: var(--input-bg);
+  color: var(--text-strong);
+  font: inherit;
+}
+
+.campaign-form textarea {
+  resize: vertical;
+}
+
+.campaign-form small,
+.players-header p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.players-section {
+  display: grid;
+  gap: 16px;
+}
+
+.form-submit-button {
+  align-self: stretch;
+}
+
+.player-adder {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+}
+
+.player-adder input {
+  width: 100%;
+}
+
+.players-table-wrapper {
+  overflow-x: auto;
+}
+
+.players-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.players-table th,
+.players-table td {
+  padding: 12px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--table-border);
+}
+
+.players-table th {
+  color: var(--muted);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.table-action,
+.table-lock {
+  font: inherit;
+}
+
+.table-action {
+  border: 0;
+  background: transparent;
+  color: #a44a26;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.table-lock {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.empty-table {
+  color: var(--muted);
+}
+
+@media (max-width: 1080px) {
+  .campaigns-topline,
+  .editor-header,
+  .players-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .campaigns-top-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 680px) {
+  .player-adder {
+    grid-template-columns: 1fr;
+  }
+}

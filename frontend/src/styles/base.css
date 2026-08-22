@@ -1,0 +1,245 @@
+:root {
+  font-family:
+    'Segoe UI',
+    'Trebuchet MS',
+    sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  --text-strong: #2b1d15;
+  --muted: #64554d;
+  --page-bg: linear-gradient(180deg, #e8dfd1 0%, #efe8dc 100%);
+  --surface-bg: rgba(255, 255, 255, 0.82);
+  --surface-border: rgba(83, 56, 38, 0.12);
+  --surface-shadow: 0 24px 50px rgba(78, 57, 35, 0.12);
+  --input-bg: rgba(255, 252, 247, 0.9);
+  --input-border: rgba(59, 42, 32, 0.16);
+  --hero-card-bg: rgba(255, 250, 244, 0.74);
+  --hero-card-border: rgba(77, 45, 33, 0.14);
+  --hero-card-shadow: 0 26px 60px rgba(84, 48, 18, 0.16);
+  --hero-panel-bg:
+    radial-gradient(circle at top left, rgba(211, 93, 53, 0.28), transparent 32%),
+    radial-gradient(circle at bottom right, rgba(25, 99, 79, 0.32), transparent 36%),
+    linear-gradient(160deg, #f8e7d4 0%, #f5efe3 46%, #d9e4de 100%);
+  --tab-row-bg: rgba(94, 66, 49, 0.08);
+  --active-tab-bg: #2f5b4f;
+  --active-tab-text: #f9f3e7;
+  --ghost-bg: rgba(47, 91, 79, 0.1);
+  --ghost-text: #2f5b4f;
+  --primary-shadow: 0 16px 30px rgba(173, 83, 44, 0.28);
+  --card-bg: rgba(255, 255, 255, 0.84);
+  --card-bg-hover: rgba(255, 251, 245, 0.98);
+  --card-shadow: 0 18px 42px rgba(78, 57, 35, 0.1);
+  --card-shadow-hover: 0 24px 50px rgba(78, 57, 35, 0.16);
+  --icon-button-bg: rgba(47, 91, 79, 0.09);
+  --icon-button-text: #2f5b4f;
+  --icon-button-danger-bg: rgba(164, 74, 38, 0.1);
+  --icon-button-danger-text: #a44a26;
+  --table-border: rgba(76, 56, 41, 0.1);
+  --top-menu-active-bg: rgba(47, 91, 79, 0.12);
+  --top-menu-active-text: #2f5b4f;
+  --toggle-track: rgba(47, 91, 79, 0.14);
+  --toggle-thumb-bg: #fff7ef;
+  --toggle-shadow: 0 10px 20px rgba(43, 29, 21, 0.12);
+  --notification-shadow: 0 18px 42px rgba(43, 29, 21, 0.14);
+}
+
+:root[data-theme='dark'] {
+  color: #f1e8dd;
+  --text-strong: #f1e8dd;
+  --muted: #b8a99d;
+  --page-bg: linear-gradient(180deg, #191512 0%, #221c18 100%);
+  --surface-bg: rgba(34, 29, 25, 0.9);
+  --surface-border: rgba(241, 232, 221, 0.08);
+  --surface-shadow: 0 24px 50px rgba(0, 0, 0, 0.34);
+  --input-bg: rgba(24, 20, 17, 0.92);
+  --input-border: rgba(241, 232, 221, 0.14);
+  --hero-card-bg: rgba(34, 29, 25, 0.72);
+  --hero-card-border: rgba(241, 232, 221, 0.08);
+  --hero-card-shadow: 0 26px 60px rgba(0, 0, 0, 0.34);
+  --hero-panel-bg:
+    radial-gradient(circle at top left, rgba(212, 111, 63, 0.2), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(95, 158, 139, 0.18), transparent 38%),
+    linear-gradient(160deg, #18130f 0%, #211a16 48%, #17211d 100%);
+  --tab-row-bg: rgba(241, 232, 221, 0.08);
+  --active-tab-bg: #5f9e8b;
+  --active-tab-text: #10211b;
+  --ghost-bg: rgba(95, 158, 139, 0.14);
+  --ghost-text: #a6d9c9;
+  --primary-shadow: 0 16px 30px rgba(0, 0, 0, 0.34);
+  --card-bg: rgba(34, 29, 25, 0.88);
+  --card-bg-hover: rgba(42, 36, 31, 0.98);
+  --card-shadow: 0 18px 42px rgba(0, 0, 0, 0.24);
+  --card-shadow-hover: 0 24px 50px rgba(0, 0, 0, 0.34);
+  --icon-button-bg: rgba(95, 158, 139, 0.14);
+  --icon-button-text: #a6d9c9;
+  --icon-button-danger-bg: rgba(212, 111, 63, 0.14);
+  --icon-button-danger-text: #efb298;
+  --table-border: rgba(241, 232, 221, 0.08);
+  --top-menu-active-bg: rgba(95, 158, 139, 0.14);
+  --top-menu-active-text: #a6d9c9;
+  --toggle-track: rgba(241, 232, 221, 0.14);
+  --toggle-thumb-bg: #2b2420;
+  --toggle-shadow: 0 10px 20px rgba(0, 0, 0, 0.24);
+  --notification-shadow: 0 18px 42px rgba(0, 0, 0, 0.3);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--text-strong);
+  background: var(--page-bg);
+  transition:
+    background 180ms ease,
+    color 180ms ease;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.panel-tag,
+.eyebrow,
+.hero-label {
+  display: inline-flex;
+  width: fit-content;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.panel-surface,
+.auth-form,
+.welcome-card {
+  padding: 34px;
+  border-radius: 32px;
+  background: var(--surface-bg);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--surface-shadow);
+}
+
+.auth-form,
+.welcome-card {
+  width: min(100%, 440px);
+}
+
+.stack-card,
+.auth-form header,
+.welcome-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.auth-form h2,
+.welcome-card h2 {
+  margin: 0;
+  font-size: 2.1rem;
+  line-height: 1;
+}
+
+.auth-form p,
+.welcome-card p {
+  color: var(--muted);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.auth-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--text-strong);
+  font-weight: 600;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  border: 1px solid var(--input-border);
+  border-radius: 18px;
+  padding: 15px 16px;
+  background: var(--input-bg);
+  color: var(--text-strong);
+  font: inherit;
+  transition:
+    border-color 120ms ease,
+    transform 120ms ease,
+    box-shadow 120ms ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #2f5b4f;
+  box-shadow: 0 0 0 4px rgba(47, 91, 79, 0.14);
+  transform: translateY(-1px);
+}
+
+.primary-button,
+.ghost-button {
+  border: 0;
+  border-radius: 999px;
+  padding: 15px 20px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary-button {
+  background: linear-gradient(135deg, #a44a26, #d46f3f);
+  color: #fff7ef;
+  box-shadow: 0 16px 30px rgba(173, 83, 44, 0.28);
+}
+
+.primary-button:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.ghost-button {
+  background: var(--ghost-bg);
+  color: var(--ghost-text);
+}
+
+.form-error {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(172, 49, 49, 0.1);
+  color: #8d1f1f;
+  font-weight: 600;
+}
+
+.form-success {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(23, 96, 58, 0.12);
+  color: #17603a;
+  font-weight: 600;
+}
+
+:root[data-theme='dark'] .form-success {
+  background: rgba(87, 196, 139, 0.14);
+  color: #9fe8bf;
+}

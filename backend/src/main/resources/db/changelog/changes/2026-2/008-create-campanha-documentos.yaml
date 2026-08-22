@@ -1,0 +1,103 @@
+databaseChangeLog:
+  - changeSet:
+      id: 008-create-campanha-documentos
+      author: ducke
+      changes:
+        - createTable:
+            tableName: campanha_documentos
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: campanha_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: enviado_por_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: nome_arquivo
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: tipo_conteudo
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: tamanho_bytes
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: conteudo
+                  type: blob
+                  constraints:
+                    nullable: false
+              - column:
+                  name: enviado_em
+                  type: timestamp
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: campanha_documentos
+            baseColumnNames: campanha_id
+            referencedTableName: campanhas
+            referencedColumnNames: id
+            constraintName: fk_documento_campanha
+        - addForeignKeyConstraint:
+            baseTableName: campanha_documentos
+            baseColumnNames: enviado_por_id
+            referencedTableName: usuarios
+            referencedColumnNames: id
+            constraintName: fk_documento_usuario
+        - createTable:
+            tableName: campanha_documento_downloads
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: documento_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: usuario_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: baixado_em
+                  type: timestamp
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: campanha_documento_downloads
+            baseColumnNames: documento_id
+            referencedTableName: campanha_documentos
+            referencedColumnNames: id
+            constraintName: fk_documento_download_documento
+        - addForeignKeyConstraint:
+            baseTableName: campanha_documento_downloads
+            baseColumnNames: usuario_id
+            referencedTableName: usuarios
+            referencedColumnNames: id
+            constraintName: fk_documento_download_usuario
+        - addUniqueConstraint:
+            tableName: campanha_documento_downloads
+            columnNames: documento_id, usuario_id
+            constraintName: uk_documento_download_usuario

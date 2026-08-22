@@ -1,0 +1,58 @@
+databaseChangeLog:
+  - changeSet:
+      id: 006-email-verification
+      author: ducke
+      changes:
+        - addColumn:
+            tableName: usuarios
+            columns:
+              - column:
+                  name: email_verificado
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: email_verificado_em
+                  type: timestamp
+        - createTable:
+            tableName: usuario_email_verificacoes
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: usuario_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: token
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: expires_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: used_at
+                  type: timestamp
+        - addForeignKeyConstraint:
+            baseTableName: usuario_email_verificacoes
+            baseColumnNames: usuario_id
+            constraintName: fk_email_verificacao_usuario
+            referencedTableName: usuarios
+            referencedColumnNames: id
+        - createIndex:
+            tableName: usuario_email_verificacoes
+            indexName: idx_email_verificacao_token
+            columns:
+              - column:
+                  name: token

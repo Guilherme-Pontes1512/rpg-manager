@@ -1,0 +1,46 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-create-personagens
+      author: ducke
+      changes:
+        - createTable:
+            tableName: personagens
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: campanha_membro_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: nome
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: historia
+                  type: text
+              - column:
+                  name: aparencia
+                  type: text
+              - column:
+                  name: image_url
+                  type: varchar(255)
+              - column:
+                  name: status
+                  type: varchar(50)
+              - column:
+                  name: dados_ficha_json
+                  type: clob
+        - addForeignKeyConstraint:
+            baseTableName: personagens
+            baseColumnNames: campanha_membro_id
+            referencedTableName: campanha_membros
+            referencedColumnNames: id
+            constraintName: fk_personagem_campanha_membro

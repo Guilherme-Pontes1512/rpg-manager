@@ -1,0 +1,7 @@
+model = "gpt-5.4"
+
+[projects."C:\\Users\\guilh\\OneDrive\\Documentos\\RPG\\rpg-manager"]
+trusted = true
+
+[windows]
+sandbox = "unelevated"

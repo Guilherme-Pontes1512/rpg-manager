@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - include:
+        file: db/changelog/changes/2026-2/001-create-campanhas.yaml
+  - include:
+        file: db/changelog/changes/2026-2/002-create-usuarios.yaml
+  - include:
+        file: db/changelog/changes/2026-2/003-create-campanha-membros.yaml
+  - include:
+        file: db/changelog/changes/2026-2/004-alter-usuarios-provider.yaml
+  - include:
+        file: db/changelog/changes/2026-2/005-create-personagens.yaml
+  - include:
+        file: db/changelog/changes/2026-2/006-email-verification.yaml
+  - include:
+        file: db/changelog/changes/2026-2/007-password-reset.yaml
+  - include:
+        file: db/changelog/changes/2026-2/008-create-campanha-documentos.yaml
+  - include:
+        file: db/changelog/changes/2026-2/009-expand-campanha-documentos-conteudo-mysql.yaml
+  - include:
+        file: db/changelog/changes/2026-2/010-create-campanha-npcs.yaml
