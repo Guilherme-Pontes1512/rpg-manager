@@ -421,6 +421,10 @@
   .npc-attribute-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .npc-skill {
+    grid-template-columns: 1fr;
+  }
 }
 
 @container (max-width: 420px) {
