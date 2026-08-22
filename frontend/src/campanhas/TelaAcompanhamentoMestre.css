@@ -31,6 +31,13 @@
   gap: 16px;
 }
 
+.gm-section-actions {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  gap: 12px;
+}
+
 .gm-section-header span,
 .gm-document-item span,
 .gm-character-info span {
@@ -39,7 +46,7 @@
 
 .gm-character-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -155,6 +162,139 @@
   white-space: nowrap;
 }
 
+.gm-npc-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 520px);
+  gap: 16px;
+  align-items: start;
+}
+
+.gm-npc-list {
+  display: grid;
+  gap: 12px;
+}
+
+.gm-npc-card {
+  display: grid;
+  grid-template-columns: 72px minmax(140px, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 96px;
+  padding: 10px 12px;
+  border: 1px solid var(--surface-border);
+  border-radius: 10px;
+  background: var(--surface-bg);
+}
+
+.gm-npc-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: end;
+}
+
+.gm-npc-actions .ghost-button {
+  white-space: nowrap;
+}
+
+.gm-danger-button {
+  color: #f0b8b8;
+}
+
+.npc-attribute-grid {
+  grid-template-columns: repeat(5, minmax(120px, 1fr));
+}
+
+.npc-skill {
+  grid-template-columns: minmax(180px, 230px) minmax(220px, 280px);
+}
+
+.gm-npc-form {
+  display: grid;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid var(--surface-border);
+  border-radius: 10px;
+  background: var(--surface-bg);
+}
+
+.gm-npc-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.gm-npc-form-header h4 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.gm-npc-basic-fields,
+.gm-npc-compact-grid,
+.gm-npc-notes-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.gm-npc-basic-fields {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.gm-npc-compact-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.gm-npc-form label,
+.gm-npc-skill-list label {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.gm-npc-form input,
+.gm-npc-form textarea {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--input-border);
+  border-radius: 10px;
+  background: var(--input-bg);
+  color: var(--text);
+  font: inherit;
+  font-weight: 700;
+}
+
+.gm-npc-form input {
+  height: 40px;
+  padding: 0 10px;
+}
+
+.gm-npc-form textarea {
+  resize: vertical;
+  padding: 10px;
+}
+
+.gm-npc-skill-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.gm-npc-skill-list label {
+  grid-template-columns: minmax(0, 1fr) 72px;
+  align-items: center;
+}
+
+.gm-npc-skill-list span {
+  overflow-wrap: anywhere;
+}
+
+.gm-npc-notes-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .gm-upload-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -213,11 +353,23 @@
   overflow-wrap: anywhere;
 }
 
+@media (max-width: 1500px) {
+  .gm-character-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 760px) {
+  .gm-character-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .gm-npc-grid,
   .gm-upload-row {
     grid-template-columns: 1fr;
   }
 
+  .gm-npc-card,
   .gm-character-card {
     grid-template-columns: 64px minmax(0, 1fr);
   }
@@ -232,9 +384,27 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .gm-npc-actions,
   .gm-character-edit-button {
     grid-column: 1 / -1;
     justify-self: stretch;
+  }
+
+  .gm-npc-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .gm-npc-basic-fields,
+  .gm-npc-compact-grid,
+  .gm-npc-notes-grid,
+  .gm-npc-skill-list {
+    grid-template-columns: 1fr;
+  }
+
+  .gm-npc-skill-list label {
+    grid-template-columns: minmax(0, 1fr) 80px;
   }
 
   .gm-document-item,
@@ -242,9 +412,19 @@
     align-items: stretch;
     flex-direction: column;
   }
+
+  .gm-section-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .npc-attribute-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @container (max-width: 420px) {
+  .gm-npc-card,
   .gm-character-card {
     grid-template-columns: 64px minmax(0, 1fr);
   }
@@ -255,10 +435,12 @@
   }
 
   .gm-character-status-list,
+  .gm-npc-actions,
   .gm-character-edit-button {
     grid-column: 1 / -1;
   }
 
+  .gm-npc-actions,
   .gm-character-edit-button {
     justify-self: stretch;
   }

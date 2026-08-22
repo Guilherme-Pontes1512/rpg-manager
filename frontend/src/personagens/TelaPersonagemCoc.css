@@ -696,4 +696,15 @@
   .coc-skill {
     grid-template-columns: 1fr;
   }
+
+  .coc-sanidade-row {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .coc-sanidade-row button {
+    min-width: 0;
+    min-height: 38px;
+    padding: 0 4px;
+  }
 }

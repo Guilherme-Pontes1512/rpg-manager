@@ -11,6 +11,11 @@ import com.ducke.rpg_manager.campanha.repository.CampanhaDocumentoDownloadStatus
 import com.ducke.rpg_manager.campanha.repository.CampanhaDocumentoRepository;
 import com.ducke.rpg_manager.campanha.repository.CampanhaRepository;
 import com.ducke.rpg_manager.campanha_membros.repository.CampanhaMembrosRepository;
+import com.ducke.rpg_manager.campanha_npcs.dtos.CampanhaNpcDto;
+import com.ducke.rpg_manager.campanha_npcs.dtos.FichaNpcCocDto;
+import com.ducke.rpg_manager.campanha_npcs.dtos.PericiaNpcCocDto;
+import com.ducke.rpg_manager.campanha_npcs.entidade.CampanhaNpc;
+import com.ducke.rpg_manager.campanha_npcs.repository.CampanhaNpcRepository;
 import com.ducke.rpg_manager.personagens.coc.dtos.FichaSRCocDto;
 import com.ducke.rpg_manager.personagens.coc.repository.PersonagemCocRepository;
 import com.ducke.rpg_manager.personagens.entidade.Personagem;
@@ -27,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.text.Normalizer;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
@@ -37,11 +43,21 @@ public class CampanhaAcompanhamentoService {
 
     private static final Set<String> TIPOS_PERMITIDOS = Set.of("application/pdf", "image/jpeg", "image/png");
     private static final long TAMANHO_MAXIMO_BYTES = 10 * 1024 * 1024;
+    private static final Set<String> PERICIAS_NPC_PERMITIDAS = Set.of(
+            "Atirar",
+            "Atletismo",
+            "Conducao",
+            "Furtividade",
+            "Lutar",
+            "Ocultismo",
+            "Primeiros Socorros"
+    );
 
     private final CampanhaRepository campanhaRepository;
     private final CampanhaMembrosRepository campanhaMembrosRepository;
     private final CampanhaDocumentoRepository documentoRepository;
     private final CampanhaDocumentoDownloadStatusRepository downloadStatusRepository;
+    private final CampanhaNpcRepository npcRepository;
     private final PersonagemCocRepository personagemRepository;
     private final CampanhaAcompanhamentoRealtimeService realtimeService;
     private final UsuarioAtualService usuarioAtualService;
@@ -58,12 +74,61 @@ public class CampanhaAcompanhamentoService {
                 .map(this::toAcompanhamentoPersonagem)
                 .toList();
 
+        List<CampanhaNpcDto> npcs = npcRepository.findAllByCampanhaIdOrderByNomeAsc(campanhaId)
+                .stream()
+                .map(this::toNpcDto)
+                .toList();
+
         List<CampanhaDocumentoOutput> documentos = documentoRepository.findAllByCampanhaIdOrderByEnviadoEmDesc(campanhaId)
                 .stream()
                 .map(documento -> toDocumentoOutput(documento, usuarioId))
                 .toList();
 
-        return new AcompanhamentoCampanhaOutput(campanha.getId(), campanha.getNome(), personagens, documentos);
+        return new AcompanhamentoCampanhaOutput(campanha.getId(), campanha.getNome(), personagens, npcs, documentos);
+    }
+
+    public CampanhaNpcDto obterNpc(Long campanhaId, Long npcId) {
+        validarMestre(campanhaId);
+        CampanhaNpc npc = obterNpcDaCampanha(campanhaId, npcId);
+        return toNpcDto(npc);
+    }
+
+    @Transactional
+    public CampanhaNpcDto criarNpc(Long campanhaId, CampanhaNpcDto input) {
+        validarMestre(campanhaId);
+        validarFichaNpc(input.dadosFichaJson());
+
+        CampanhaNpc npc = new CampanhaNpc();
+        npc.setCampanha(obterCampanha(campanhaId));
+        atualizarDadosNpc(npc, input);
+
+        npcRepository.save(npc);
+        realtimeService.notificarFichaAtualizada(campanhaId);
+
+        return toNpcDto(npc);
+    }
+
+    @Transactional
+    public CampanhaNpcDto atualizarNpc(Long campanhaId, Long npcId, CampanhaNpcDto input) {
+        validarMestre(campanhaId);
+        validarFichaNpc(input.dadosFichaJson());
+
+        CampanhaNpc npc = obterNpcDaCampanha(campanhaId, npcId);
+        atualizarDadosNpc(npc, input);
+
+        npcRepository.save(npc);
+        realtimeService.notificarFichaAtualizada(campanhaId);
+
+        return toNpcDto(npc);
+    }
+
+    @Transactional
+    public void deletarNpc(Long campanhaId, Long npcId) {
+        validarMestre(campanhaId);
+        CampanhaNpc npc = obterNpcDaCampanha(campanhaId, npcId);
+
+        npcRepository.delete(npc);
+        realtimeService.notificarFichaAtualizada(campanhaId);
     }
 
     public SseEmitter acompanharTempoReal(Long campanhaId) {
@@ -164,6 +229,45 @@ public class CampanhaAcompanhamentoService {
                 .orElseThrow(() -> new EntityNotFoundException("Campanha nao encontrada"));
     }
 
+    private CampanhaNpc obterNpcDaCampanha(Long campanhaId, Long npcId) {
+        CampanhaNpc npc = npcRepository.findById(npcId)
+                .orElseThrow(() -> new EntityNotFoundException("NPC nao encontrado"));
+
+        if (!npc.getCampanha().getId().equals(campanhaId)) {
+            throw new EntityNotFoundException("NPC nao encontrado nesta campanha");
+        }
+
+        return npc;
+    }
+
+    private void atualizarDadosNpc(CampanhaNpc npc, CampanhaNpcDto input) {
+        npc.setNome(input.nome());
+        npc.setImageUrl(input.imageUrl());
+
+        try {
+            npc.setDadosFichaJson(objectMapper.writeValueAsString(input.dadosFichaJson()));
+        } catch (IOException ex) {
+            throw new IllegalArgumentException("Nao foi possivel salvar a ficha do NPC", ex);
+        }
+    }
+
+    private void validarFichaNpc(FichaNpcCocDto ficha) {
+        if (ficha.pericias() == null) {
+            return;
+        }
+
+        for (PericiaNpcCocDto pericia : ficha.pericias()) {
+            if (!PERICIAS_NPC_PERMITIDAS.contains(normalizarPericia(pericia.nome()))) {
+                throw new IllegalArgumentException("Pericia de NPC nao permitida: " + pericia.nome());
+            }
+        }
+    }
+
+    private String normalizarPericia(String nome) {
+        return Normalizer.normalize(nome, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "");
+    }
+
     private AcompanhamentoPersonagemOutput toAcompanhamentoPersonagem(Personagem personagem) {
         FichaSRCocDto ficha = lerFicha(personagem.getDadosFichaJson());
         String retratoUrl = ficha == null || ficha.retratoUrl() == null || ficha.retratoUrl().isBlank()
@@ -190,6 +294,29 @@ public class CampanhaAcompanhamentoService {
             return objectMapper.readValue(dadosFichaJson, FichaSRCocDto.class);
         } catch (IOException ex) {
             throw new IllegalArgumentException("Nao foi possivel ler a ficha do personagem", ex);
+        }
+    }
+
+    private CampanhaNpcDto toNpcDto(CampanhaNpc npc) {
+        FichaNpcCocDto ficha = lerFichaNpc(npc.getDadosFichaJson());
+        return new CampanhaNpcDto(
+                npc.getId(),
+                npc.getCampanha().getId(),
+                npc.getNome(),
+                npc.getImageUrl(),
+                ficha
+        );
+    }
+
+    private FichaNpcCocDto lerFichaNpc(String dadosFichaJson) {
+        if (dadosFichaJson == null || dadosFichaJson.isBlank()) {
+            return null;
+        }
+
+        try {
+            return objectMapper.readValue(dadosFichaJson, FichaNpcCocDto.class);
+        } catch (IOException ex) {
+            throw new IllegalArgumentException("Nao foi possivel ler a ficha do NPC", ex);
         }
     }
 

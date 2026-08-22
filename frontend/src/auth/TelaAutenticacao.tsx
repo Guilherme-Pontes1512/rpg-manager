@@ -42,12 +42,10 @@ const initialResetPassword: ResetPasswordState = {
 
 type TelaAutenticacaoProps = {
   onAuthenticated: (user: AuthUser) => void
-  statusMessage: string
 }
 
 export function TelaAutenticacao({
   onAuthenticated,
-  statusMessage,
 }: TelaAutenticacaoProps) {
   const [mode, setMode] = useState<AuthMode>('login')
   const [loginForm, setLoginForm] = useState<LoginState>(initialLogin)
@@ -218,16 +216,7 @@ export function TelaAutenticacao({
     <main className="shell">
       <section className="hero-panel">
         <p className="eyebrow">RPG Manager</p>
-        <h1>Entre na mesa sem abrir outra aba.</h1>
-        <p className="hero-copy">
-          Login por email e senha, cadastro simples e sessao pronta para a
-          futura area do app.
-        </p>
-        <div className="hero-card">
-          <span className="hero-label">Status</span>
-          <strong>Nao autenticado</strong>
-          <p>{statusMessage}</p>
-        </div>
+        <h1>RPG Manager</h1>
       </section>
 
       <section className="auth-panel">

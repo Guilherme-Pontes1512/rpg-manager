@@ -29,7 +29,6 @@ function getInitialAppView(): AppView {
 function App() {
   const [authLoading, setAuthLoading] = useState(true)
   const [currentView, setCurrentView] = useState<AppView>(getInitialAppView)
-  const [statusMessage, setStatusMessage] = useState('Carregando sessao...')
   const [theme, setTheme] = useState<ThemeMode>(getInitialTheme)
   const [user, setUser] = useState<AuthUser | null>(null)
 
@@ -47,18 +46,15 @@ function App() {
 
     if (!token) {
       setAuthLoading(false)
-      setStatusMessage('Entre com sua conta para acessar o gerenciador.')
       return
     }
 
     getCurrentUser(token)
       .then((currentUser) => {
         setUser(currentUser)
-        setStatusMessage(`Sessao restaurada para ${currentUser.username}.`)
       })
       .catch(() => {
         clearStoredToken()
-        setStatusMessage('Sua sessao expirou. Faca login novamente.')
       })
       .finally(() => {
         setAuthLoading(false)
@@ -68,14 +64,12 @@ function App() {
   function handleAuthenticated(currentUser: AuthUser) {
     setUser(currentUser)
     setCurrentView('campanhas')
-    setStatusMessage(`Sessao ativa para ${currentUser.username}.`)
   }
 
   function handleLogout() {
     clearStoredToken()
     window.localStorage.removeItem(APP_VIEW_STORAGE_KEY)
     setUser(null)
-    setStatusMessage('Sessao encerrada.')
   }
 
   function handleToggleTheme() {
@@ -89,12 +83,7 @@ function App() {
   }
 
   if (!user || !token) {
-    return (
-      <TelaAutenticacao
-        onAuthenticated={handleAuthenticated}
-        statusMessage={statusMessage}
-      />
-    )
+    return <TelaAutenticacao onAuthenticated={handleAuthenticated} />
   }
 
   return (

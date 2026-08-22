@@ -5,6 +5,7 @@ import com.ducke.rpg_manager.campanha.enumx.CampanhaPapelEnum;
 import com.ducke.rpg_manager.campanha.repository.CampanhaRepository;
 import com.ducke.rpg_manager.campanha_membros.entidade.CampanhaMembro;
 import com.ducke.rpg_manager.campanha_membros.repository.CampanhaMembrosRepository;
+import com.ducke.rpg_manager.campanha_npcs.repository.CampanhaNpcRepository;
 import com.ducke.rpg_manager.common.SistemaEnum;
 import com.ducke.rpg_manager.personagens.coc.repository.PersonagemCocRepository;
 import com.ducke.rpg_manager.usuario.entidade.Usuario;
@@ -70,8 +71,12 @@ class RpgManagerApplicationTests {
     @Autowired
     private PersonagemCocRepository personagemCocRepository;
 
+    @Autowired
+    private CampanhaNpcRepository campanhaNpcRepository;
+
     @BeforeEach
     void cleanDatabase() {
+        campanhaNpcRepository.deleteAll();
         personagemCocRepository.deleteAll();
         campanhaMembrosRepository.deleteAll();
         campanhaRepository.deleteAll();
@@ -435,6 +440,88 @@ class RpgManagerApplicationTests {
                 .andExpect(jsonPath("$.length()").value(2));
     }
 
+    @Test
+    void deveGerenciarNpcsNoAcompanhamentoDaCampanha() throws Exception {
+        Usuario mestre = criarUsuarioLocal("mestre-npc", "mestre-npc@example.com", "senha123");
+        Usuario player = criarUsuarioLocal("player-npc", "player-npc@example.com", "senha123");
+        Campanha campanha = campanhaRepository.save(new Campanha(null, "Noite em Arkham", "Campanha COC", SistemaEnum.COC, null));
+
+        campanhaMembrosRepository.save(new CampanhaMembro(null, campanha, mestre, CampanhaPapelEnum.MESTRE));
+        campanhaMembrosRepository.save(new CampanhaMembro(null, campanha, player, CampanhaPapelEnum.JOGADOR));
+
+        String payload = objectMapper.writeValueAsString(npcPayload(
+                "Dra. Evelyn Marsh",
+                "Medica legista",
+                "https://example.com/evelyn.png",
+                "Atirar"
+        ));
+
+        MvcResult createResult = mockMvc.perform(post("/api/campanhas/{id}/acompanhamento/npcs", campanha.getId())
+                        .with(httpBasic(mestre.getEmail(), "senha123"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.nome").value("Dra. Evelyn Marsh"))
+                .andExpect(jsonPath("$.campanhaId").value(campanha.getId()))
+                .andExpect(jsonPath("$.dadosFichaJson.profissao").value("Medica legista"))
+                .andExpect(jsonPath("$.dadosFichaJson.atributos.presenca").doesNotExist())
+                .andExpect(jsonPath("$.dadosFichaJson.sorte").doesNotExist())
+                .andExpect(jsonPath("$.dadosFichaJson.ocupacao").doesNotExist())
+                .andExpect(jsonPath("$.dadosFichaJson.pericias[0].marcada").doesNotExist())
+                .andExpect(jsonPath("$.dadosFichaJson.segredos").value("Sabe mais do que revela"))
+                .andReturn();
+
+        Long npcId = lerId(createResult);
+
+        mockMvc.perform(get("/api/campanhas/{id}/acompanhamento", campanha.getId())
+                        .with(httpBasic(mestre.getEmail(), "senha123")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.npcs.length()").value(1))
+                .andExpect(jsonPath("$.npcs[0].id").value(npcId))
+                .andExpect(jsonPath("$.npcs[0].dadosFichaJson.pericias[0].nome").value("Atirar"));
+
+        String updatePayload = objectMapper.writeValueAsString(npcPayload(
+                "Dra. Evelyn Marsh",
+                "Cirurgia",
+                "https://example.com/evelyn-2.png",
+                "Primeiros Socorros"
+        ));
+
+        mockMvc.perform(put("/api/campanhas/{id}/acompanhamento/npcs/{npcId}", campanha.getId(), npcId)
+                        .with(httpBasic(mestre.getEmail(), "senha123"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updatePayload))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.imageUrl").value("https://example.com/evelyn-2.png"))
+                .andExpect(jsonPath("$.dadosFichaJson.profissao").value("Cirurgia"))
+                .andExpect(jsonPath("$.dadosFichaJson.pericias[0].nome").value("Primeiros Socorros"));
+
+        mockMvc.perform(post("/api/campanhas/{id}/acompanhamento/npcs", campanha.getId())
+                        .with(httpBasic(mestre.getEmail(), "senha123"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(npcPayload(
+                                "NPC invalido",
+                                "Charlatao",
+                                null,
+                                "Biblioteca"
+                        ))))
+                .andExpect(status().isBadRequest());
+
+        mockMvc.perform(post("/api/campanhas/{id}/acompanhamento/npcs", campanha.getId())
+                        .with(httpBasic(player.getEmail(), "senha123"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(delete("/api/campanhas/{id}/acompanhamento/npcs/{npcId}", campanha.getId(), npcId)
+                        .with(httpBasic(mestre.getEmail(), "senha123")))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/api/campanhas/{id}/acompanhamento/npcs/{npcId}", campanha.getId(), npcId)
+                        .with(httpBasic(mestre.getEmail(), "senha123")))
+                .andExpect(status().isNotFound());
+    }
+
     private Usuario criarUsuarioLocal(String username, String email, String senha) {
         Usuario usuario = new Usuario();
         usuario.setNome(username);
@@ -495,6 +582,35 @@ class RpgManagerApplicationTests {
                         entry("importantes", "Contato na universidade"),
                         entry("inventario", "Lanterna"),
                         entry("armas", "Revolver"),
+                        entry("rituais", "Nenhum")
+                )
+        );
+    }
+
+    private Map<String, Object> npcPayload(String nome, String profissao, String imageUrl, String periciaNome) {
+        return Map.of(
+                "nome", nome,
+                "imageUrl", imageUrl == null ? "" : imageUrl,
+                "dadosFichaJson", Map.ofEntries(
+                        entry("profissao", profissao),
+                        entry("atributos", Map.of(
+                                "forca", 45,
+                                "destreza", 50,
+                                "constituicao", 55,
+                                "inteligencia", 65,
+                                "vontade", 60
+                        )),
+                        entry("vidaAtual", 11),
+                        entry("vidaMaxima", 11),
+                        entry("sanidade", 1),
+                        entry("esquiva", 25),
+                        entry("pericias", List.of(Map.of("nome", periciaNome, "base", 20, "valor", 55))),
+                        entry("retratoUrl", imageUrl == null ? "" : imageUrl),
+                        entry("historico", "Trabalha no necroterio local"),
+                        entry("aparencia", "Jaleco manchado"),
+                        entry("importantes", "Tem acesso aos registros"),
+                        entry("segredos", "Sabe mais do que revela"),
+                        entry("armas", "Bisturi"),
                         entry("rituais", "Nenhum")
                 )
         );

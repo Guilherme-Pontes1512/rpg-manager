@@ -1,4 +1,4 @@
-import type { AcompanhamentoCampanha, CampanhaDocumento } from './tiposAcompanhamento'
+import type { AcompanhamentoCampanha, CampanhaDocumento, CampanhaNpc } from './tiposAcompanhamento'
 
 async function acompanhamentoRequest<T>(token: string, path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
@@ -87,6 +87,32 @@ export function enviarDocumentoCampanha(token: string, campanhaId: number, arqui
   return acompanhamentoRequest<CampanhaDocumento>(token, `/api/campanhas/${campanhaId}/documentos`, {
     method: 'POST',
     body,
+  })
+}
+
+export function criarNpcCampanha(token: string, campanhaId: number, npc: CampanhaNpc) {
+  return acompanhamentoRequest<CampanhaNpc>(token, `/api/campanhas/${campanhaId}/acompanhamento/npcs`, {
+    method: 'POST',
+    body: JSON.stringify(npc),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+}
+
+export function atualizarNpcCampanha(token: string, campanhaId: number, npcId: number, npc: CampanhaNpc) {
+  return acompanhamentoRequest<CampanhaNpc>(token, `/api/campanhas/${campanhaId}/acompanhamento/npcs/${npcId}`, {
+    method: 'PUT',
+    body: JSON.stringify(npc),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+}
+
+export function excluirNpcCampanha(token: string, campanhaId: number, npcId: number) {
+  return acompanhamentoRequest<void>(token, `/api/campanhas/${campanhaId}/acompanhamento/npcs/${npcId}`, {
+    method: 'DELETE',
   })
 }
 

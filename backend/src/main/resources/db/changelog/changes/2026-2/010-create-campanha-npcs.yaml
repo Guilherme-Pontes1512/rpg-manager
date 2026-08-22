@@ -1,0 +1,45 @@
+databaseChangeLog:
+  - changeSet:
+      id: 010-create-campanha-npcs
+      author: ducke
+      changes:
+        - createTable:
+            tableName: campanha_npcs
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: campanha_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: nome
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: image_url
+                  type: varchar(255)
+              - column:
+                  name: dados_ficha_json
+                  type: clob
+        - addForeignKeyConstraint:
+            baseTableName: campanha_npcs
+            baseColumnNames: campanha_id
+            referencedTableName: campanhas
+            referencedColumnNames: id
+            constraintName: fk_campanha_npc_campanha
+        - createIndex:
+            tableName: campanha_npcs
+            indexName: idx_campanha_npcs_campanha_nome
+            columns:
+              - column:
+                  name: campanha_id
+              - column:
+                  name: nome

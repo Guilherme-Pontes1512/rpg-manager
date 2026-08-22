@@ -9,6 +9,7 @@ import com.ducke.rpg_manager.campanha.dtos.CampanhaResumoOutput;
 import com.ducke.rpg_manager.campanha.dtos.CampanhaSearchInput;
 import com.ducke.rpg_manager.campanha.service.CampanhaAcompanhamentoService;
 import com.ducke.rpg_manager.campanha.service.CampanhaService;
+import com.ducke.rpg_manager.campanha_npcs.dtos.CampanhaNpcDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -61,6 +62,31 @@ public class CampanhaController {
     @GetMapping("/{id}/acompanhamento")
     public ResponseEntity<AcompanhamentoCampanhaOutput> obterAcompanhamento(@PathVariable Long id) {
         return ResponseEntity.ok(acompanhamentoService.obterAcompanhamento(id));
+    }
+
+    @PostMapping("/{id}/acompanhamento/npcs")
+    public ResponseEntity<CampanhaNpcDto> criarNpc(@PathVariable Long id, @RequestBody @Valid CampanhaNpcDto input) {
+        return ResponseEntity.ok(acompanhamentoService.criarNpc(id, input));
+    }
+
+    @GetMapping("/{id}/acompanhamento/npcs/{npcId}")
+    public ResponseEntity<CampanhaNpcDto> obterNpc(@PathVariable Long id, @PathVariable Long npcId) {
+        return ResponseEntity.ok(acompanhamentoService.obterNpc(id, npcId));
+    }
+
+    @PutMapping("/{id}/acompanhamento/npcs/{npcId}")
+    public ResponseEntity<CampanhaNpcDto> atualizarNpc(
+            @PathVariable Long id,
+            @PathVariable Long npcId,
+            @RequestBody @Valid CampanhaNpcDto input
+    ) {
+        return ResponseEntity.ok(acompanhamentoService.atualizarNpc(id, npcId, input));
+    }
+
+    @DeleteMapping("/{id}/acompanhamento/npcs/{npcId}")
+    public ResponseEntity<Void> deletarNpc(@PathVariable Long id, @PathVariable Long npcId) {
+        acompanhamentoService.deletarNpc(id, npcId);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping(value = "/{id}/acompanhamento/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
