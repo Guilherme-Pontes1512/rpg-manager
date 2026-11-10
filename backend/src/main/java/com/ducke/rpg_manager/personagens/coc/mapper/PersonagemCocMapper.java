@@ -31,8 +31,23 @@ public abstract class PersonagemCocMapper {
     @Mapping(target = "dadosFichaJson", source = "dadosFichaJson")
     public abstract PersonagemDto toDto(Personagem personagem);
 
-    @Mapping(target = "campanhaId", source = "campanhaMembro.campanha.id")
-    public abstract PersonagemResumoDto toResumoDto(Personagem personagem);
+    public PersonagemResumoDto toResumoDto(Personagem personagem) {
+        if (personagem == null) {
+            return null;
+        }
+
+        FichaSRCocDto ficha = map(personagem.getDadosFichaJson());
+        String retratoUrl = ficha == null || ficha.retratoUrl() == null || ficha.retratoUrl().isBlank()
+                ? personagem.getImageUrl()
+                : ficha.retratoUrl();
+
+        return new PersonagemResumoDto(
+                personagem.getId(),
+                personagem.getCampanhaMembro().getCampanha().getId(),
+                personagem.getNome(),
+                retratoUrl
+        );
+    }
 
     protected String map(FichaSRCocDto ficha) {
         if (ficha == null) {

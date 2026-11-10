@@ -274,6 +274,7 @@ export function TelaCampanhas({ token, user }: TelaCampanhasProps) {
   const isFormView = viewMode === 'formulario'
   const isPersonagensView = viewMode === 'personagens'
   const isAcompanhamentoView = viewMode === 'acompanhamento'
+  const isFichaPersonagemMestre = isPersonagensView && campanhaAtual?.papel === 'MESTRE' && personagemSelecionadoId
   const membroAtual = campanhaAtual?.membros.find((membro) => membro.usuarioId === user.id)
 
   function voltarParaLista() {
@@ -306,14 +307,14 @@ export function TelaCampanhas({ token, user }: TelaCampanhasProps) {
         </div>
       </header>
 
-      {isAcompanhamentoView && campanhaAtual ? (
+      {(isAcompanhamentoView || (isPersonagensView && campanhaAtual?.papel === 'MESTRE' && !personagemSelecionadoId)) && campanhaAtual ? (
         <TelaAcompanhamentoMestre
           campanhaId={campanhaAtual.id}
           onBack={voltarParaLista}
           onEditarPersonagem={abrirFichaPersonagemComoMestre}
           token={token}
         />
-      ) : isPersonagensView && campanhaAtual ? (
+      ) : (isFichaPersonagemMestre || isPersonagensView) && campanhaAtual ? (
         <TelaPersonagemCoc
           backLabel={campanhaAtual.papel === 'MESTRE' ? 'Voltar para acompanhamento' : 'Voltar para campanhas'}
           campanhaId={campanhaAtual.id}
@@ -321,7 +322,9 @@ export function TelaCampanhas({ token, user }: TelaCampanhasProps) {
           canCreate={membroAtual?.papel === 'JOGADOR'}
           canDelete={campanhaAtual.papel !== 'MESTRE'}
           initialPersonagemId={personagemSelecionadoId}
+          key={`${campanhaAtual.id}-${campanhaAtual.papel}-${personagemSelecionadoId ?? 'lista'}`}
           onBack={campanhaAtual.papel === 'MESTRE' ? voltarParaAcompanhamento : voltarParaLista}
+          skipListView={campanhaAtual.papel === 'MESTRE'}
           token={token}
         />
       ) : isFormView ? (

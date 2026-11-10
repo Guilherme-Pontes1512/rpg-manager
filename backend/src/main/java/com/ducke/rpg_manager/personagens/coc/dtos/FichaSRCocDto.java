@@ -42,11 +42,19 @@ public record FichaSRCocDto(
         String ocupacaoPericias,
         String retratoUrl,
         String anotacoes,
+        String anotacoesPersonagem,
+        String personalidade,
         String historico,
         String aparencia,
         String importantes,
         String inventario,
+        Boolean vidaMaximaManual,
         Object armas,
         Object rituais
 ) {
+        public FichaSRCocDto {
+                if (vidaMaxima == null && atributos != null && atributos.constituicao() != null) {
+                        vidaMaxima = atributos.constituicao() / 5;
+                }
+        }
 }

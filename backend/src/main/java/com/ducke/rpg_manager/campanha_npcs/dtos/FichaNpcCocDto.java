@@ -38,4 +38,9 @@ public record FichaNpcCocDto(
         Object armas,
         Object rituais
 ) {
+        public FichaNpcCocDto {
+                if (vidaMaxima == null && atributos != null && atributos.constituicao() != null) {
+                        vidaMaxima = atributos.constituicao() / 5;
+                }
+        }
 }

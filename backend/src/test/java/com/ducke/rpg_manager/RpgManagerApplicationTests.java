@@ -326,6 +326,8 @@ class RpgManagerApplicationTests {
                 .andExpect(jsonPath("$.nome").value("Harvey Walters"))
                 .andExpect(jsonPath("$.campanhaId").value(campanha.getId()))
                 .andExpect(jsonPath("$.dadosFichaJson.anotacoes").value("Cicatriz no rosto"))
+                .andExpect(jsonPath("$.dadosFichaJson.anotacoesPersonagem").value("Sabe que o reitor mente"))
+                .andExpect(jsonPath("$.dadosFichaJson.personalidade").value("Cauteloso e curioso"))
                 .andExpect(jsonPath("$.dadosFichaJson.aparencia").value("Olhar cansado"))
                 .andExpect(jsonPath("$.dadosFichaJson.ocupacao").value("Acadêmico"))
                 .andExpect(jsonPath("$.dadosFichaJson.profissao").value("Professor"))
@@ -388,6 +390,29 @@ class RpgManagerApplicationTests {
     }
 
     @Test
+    void deveCalcularVidaMaximaPelaConstituicaoQuandoNaoInformada() throws Exception {
+        Usuario usuario = criarUsuarioLocal("investigador-vida", "investigador-vida@example.com", "senha123");
+        Campanha campanha = campanhaRepository.save(new Campanha(null, "Arkham", "Campanha COC", SistemaEnum.COC, null));
+        campanhaMembrosRepository.save(new CampanhaMembro(null, campanha, usuario, CampanhaPapelEnum.MESTRE));
+
+        String payload = objectMapper.writeValueAsString(semVidaMaxima(personagemPayload(
+                campanha.getId(),
+                "Harvey Walters",
+                "Professor de historia",
+                "Terno gasto",
+                "https://example.com/harvey.png",
+                "ATIVO"
+        )));
+
+        mockMvc.perform(post("/api/personagens/coc")
+                        .with(httpBasic(usuario.getEmail(), "senha123"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.dadosFichaJson.vidaMaxima").value(10));
+    }
+
+    @Test
     void deveListarApenasPersonagensDoUsuarioNaAbaGlobal() throws Exception {
         Usuario mestre = criarUsuarioLocal("mestre-global", "mestre-global@example.com", "senha123");
         Usuario playerUm = criarUsuarioLocal("player-global-um", "player-global-um@example.com", "senha123");
@@ -437,7 +462,8 @@ class RpgManagerApplicationTests {
                         .param("campanhaId", String.valueOf(campanha.getId()))
                         .with(httpBasic(playerUm.getEmail(), "senha123")))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2));
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].imageUrl").value("data:image/png;base64,retrato"));
     }
 
     @Test
@@ -449,12 +475,12 @@ class RpgManagerApplicationTests {
         campanhaMembrosRepository.save(new CampanhaMembro(null, campanha, mestre, CampanhaPapelEnum.MESTRE));
         campanhaMembrosRepository.save(new CampanhaMembro(null, campanha, player, CampanhaPapelEnum.JOGADOR));
 
-        String payload = objectMapper.writeValueAsString(npcPayload(
+        String payload = objectMapper.writeValueAsString(semVidaMaxima(npcPayload(
                 "Dra. Evelyn Marsh",
                 "Medica legista",
                 "https://example.com/evelyn.png",
                 "Atirar"
-        ));
+        )));
 
         MvcResult createResult = mockMvc.perform(post("/api/campanhas/{id}/acompanhamento/npcs", campanha.getId())
                         .with(httpBasic(mestre.getEmail(), "senha123"))
@@ -469,6 +495,7 @@ class RpgManagerApplicationTests {
                 .andExpect(jsonPath("$.dadosFichaJson.ocupacao").doesNotExist())
                 .andExpect(jsonPath("$.dadosFichaJson.pericias[0].marcada").doesNotExist())
                 .andExpect(jsonPath("$.dadosFichaJson.segredos").value("Sabe mais do que revela"))
+                .andExpect(jsonPath("$.dadosFichaJson.vidaMaxima").value(11))
                 .andReturn();
 
         Long npcId = lerId(createResult);
@@ -576,7 +603,10 @@ class RpgManagerApplicationTests {
                         entry("pontosDeDestino", 1),
                         entry("pericias", List.of(Map.of("nome", "Biblioteca", "base", 20, "valor", 65, "marcada", true))),
                         entry("ocupacaoPericias", "Ciencias, Historia, Investigacao e Psicologia"),
+                        entry("retratoUrl", "data:image/png;base64,retrato"),
                         entry("anotacoes", "Cicatriz no rosto"),
+                        entry("anotacoesPersonagem", "Sabe que o reitor mente"),
+                        entry("personalidade", "Cauteloso e curioso"),
                         entry("historico", "Professor de historia em Arkham"),
                         entry("aparencia", "Olhar cansado"),
                         entry("importantes", "Contato na universidade"),
@@ -614,5 +644,14 @@ class RpgManagerApplicationTests {
                         entry("rituais", "Nenhum")
                 )
         );
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> semVidaMaxima(Map<String, Object> payload) {
+        Map<String, Object> copia = new java.util.LinkedHashMap<>(payload);
+        Map<String, Object> ficha = new java.util.LinkedHashMap<>((Map<String, Object>) copia.get("dadosFichaJson"));
+        ficha.remove("vidaMaxima");
+        copia.put("dadosFichaJson", ficha);
+        return copia;
     }
 }

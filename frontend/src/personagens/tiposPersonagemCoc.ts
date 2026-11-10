@@ -31,6 +31,7 @@ export type RitualCoc = {
 
 export type FichaCoc = {
   anotacoes?: string
+  anotacoesPersonagem?: string
   aparencia?: string
   armas?: ArmaCoc[]
   atributos: AtributosCoc
@@ -43,6 +44,7 @@ export type FichaCoc = {
   ocupacao?: string
   ocupacaoPericias?: string
   pericias: PericiaCoc[]
+  personalidade?: string
   pontosDeDestino?: number
   profissao?: string
   retratoUrl?: string
@@ -54,6 +56,7 @@ export type FichaCoc = {
   origemPericias?: string
   vidaAtual: number
   vidaMaxima: number
+  vidaMaximaManual?: boolean
 }
 
 export type PersonagemCoc = {

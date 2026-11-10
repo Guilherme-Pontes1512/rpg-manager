@@ -1,6 +1,7 @@
 .gm-dashboard {
   display: grid;
   gap: 18px;
+  min-width: 0;
 }
 
 .gm-dashboard-header {
@@ -8,6 +9,7 @@
   align-items: end;
   justify-content: space-between;
   gap: 20px;
+  min-width: 0;
 }
 
 .gm-dashboard-header h2,
@@ -18,6 +20,7 @@
 .gm-panel {
   display: grid;
   gap: 16px;
+  min-width: 0;
   padding: 22px;
   border-radius: 24px;
   background: var(--card-bg);
@@ -29,6 +32,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  min-width: 0;
 }
 
 .gm-section-actions {
@@ -46,15 +50,16 @@
 
 .gm-character-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr));
   gap: 12px;
 }
 
 .gm-character-card {
   display: grid;
-  grid-template-columns: 72px minmax(160px, 1fr) auto auto;
+  grid-template-columns: 72px minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 12px;
+  min-width: 0;
   min-height: 96px;
   padding: 10px 12px;
   border: 1px solid var(--surface-border);
@@ -164,9 +169,10 @@
 
 .gm-npc-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(360px, 520px);
+  grid-template-columns: minmax(0, 1fr) minmax(min(360px, 100%), 520px);
   gap: 16px;
   align-items: start;
+  min-width: 0;
 }
 
 .gm-npc-list {
@@ -176,9 +182,10 @@
 
 .gm-npc-card {
   display: grid;
-  grid-template-columns: 72px minmax(140px, 1fr) auto auto;
+  grid-template-columns: 72px minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 12px;
+  min-width: 0;
   min-height: 96px;
   padding: 10px 12px;
   border: 1px solid var(--surface-border);
@@ -201,11 +208,11 @@
 }
 
 .npc-attribute-grid {
-  grid-template-columns: repeat(5, minmax(120px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(120px, 100%), 1fr));
 }
 
 .npc-skill {
-  grid-template-columns: minmax(180px, 230px) minmax(220px, 280px);
+  grid-template-columns: minmax(150px, 1fr) minmax(180px, 240px);
 }
 
 .gm-npc-form {
@@ -354,8 +361,20 @@
 }
 
 @media (max-width: 1500px) {
-  .gm-character-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .gm-npc-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 980px) {
+  .gm-dashboard-header,
+  .gm-section-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .gm-section-actions {
+    justify-content: start;
   }
 }
 
