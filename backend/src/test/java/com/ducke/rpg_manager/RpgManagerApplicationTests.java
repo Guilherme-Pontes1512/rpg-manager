@@ -15,6 +15,8 @@ import com.ducke.rpg_manager.usuario.repository.UsuarioRecuperacaoSenhaRepositor
 import com.ducke.rpg_manager.usuario.repository.UsuarioRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.RequestDispatcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(properties = {
@@ -83,6 +86,35 @@ class RpgManagerApplicationTests {
         usuarioRecuperacaoSenhaRepository.deleteAll();
         usuarioEmailVerificacaoRepository.deleteAll();
         usuarioRepository.deleteAll();
+    }
+
+    @Test
+    void deveAbrirFrontendSemAutenticacao() throws Exception {
+        for (String path : List.of("/login", "/cadastro")) {
+            mockMvc.perform(get(path))
+                    .andExpect(status().isOk())
+                    .andExpect(forwardedUrl("/index.html"));
+        }
+    }
+
+    @Test
+    void deveManterApiProtegidaSemRetornarFrontend() throws Exception {
+        mockMvc.perform(get("/api/auth/me"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void devePreservarStatusNoDespachoDeErroSemRedirecionarLogin() throws Exception {
+        mockMvc.perform(get("/error")
+                        .with(request -> {
+                            request.setDispatcherType(DispatcherType.ERROR);
+                            return request;
+                        })
+                        .requestAttr(RequestDispatcher.ERROR_STATUS_CODE, 401)
+                        .requestAttr(RequestDispatcher.ERROR_REQUEST_URI, "/api/auth/me"))
+                .andExpect(status().isUnauthorized());
+        mockMvc.perform(get("/assets/inexistente.js"))
+                .andExpect(status().isNotFound());
     }
 
     @Test
