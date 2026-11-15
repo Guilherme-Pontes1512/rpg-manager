@@ -30,6 +30,7 @@ type TelaPersonagemCocProps = {
   canDelete?: boolean
   initialPersonagemId?: number | null
   onBack?: () => void
+  skipListView?: boolean
   token: string
 }
 
@@ -47,7 +48,10 @@ type OcupacaoCoc = {
 }
 
 type SecaoColapsavel = {
-  field: keyof Pick<FichaCoc, 'historico' | 'importantes' | 'inventario' | 'aparencia' | 'anotacoes'>
+  field: keyof Pick<
+    FichaCoc,
+    'historico' | 'importantes' | 'inventario' | 'aparencia' | 'anotacoes' | 'anotacoesPersonagem' | 'personalidade'
+  >
   label: string
 }
 
@@ -141,8 +145,10 @@ const OCUPACOES: OcupacaoCoc[] = [
 
 const SECOES_COLAPSAVEIS: SecaoColapsavel[] = [
   { field: 'anotacoes', label: 'Anotações'},
+  { field: 'anotacoesPersonagem', label: 'Anotações - Personagem' },
   { field: 'historico', label: 'Histórico' },
   { field: "aparencia", label: 'Aparência' },
+  { field: 'personalidade', label: 'Personalidade' },
   { field: 'importantes', label: 'Importantes' },
   { field: 'inventario', label: 'Inventário' },
 ]
@@ -169,6 +175,7 @@ function criarFichaInicial(): FichaCoc {
     sorte: 50,
     vidaAtual: 10,
     vidaMaxima: 10,
+    vidaMaximaManual: false,
   }
 }
 
@@ -189,6 +196,7 @@ export function TelaPersonagemCoc({
   canCreate = true,
   initialPersonagemId,
   onBack,
+  skipListView = false,
   token,
 }: TelaPersonagemCocProps) {
   const { notify } = useNotificacoes()
@@ -201,7 +209,7 @@ export function TelaPersonagemCoc({
   const [saving, setSaving] = useState(false)
   const [vidaMaximaEmEdicao, setVidaMaximaEmEdicao] = useState<string | null>(null)
   const [esquivaManual, setEsquivaManual] = useState(false)
-  const [viewMode, setViewMode] = useState<CharacterViewMode>('lista')
+  const [viewMode, setViewMode] = useState<CharacterViewMode>(() => skipListView ? 'formulario' : 'lista')
   const autosaveTimerRef = useRef<number | null>(null)
   const autosaveInFlightRef = useRef(false)
   const lastSavedPayloadRef = useRef('')
@@ -212,11 +220,17 @@ export function TelaPersonagemCoc({
 
   useEffect(() => {
     if (!initialPersonagemId) {
+      if (skipListView && onBack) {
+        onBack()
+      }
       return
     }
 
+    if (skipListView) {
+      setViewMode('formulario')
+    }
     void abrirFichaPersonagem(initialPersonagemId)
-  }, [initialPersonagemId])
+  }, [initialPersonagemId, skipListView])
 
   useEffect(() => {
     if (!campanhaIdFixo) {
@@ -312,6 +326,8 @@ export function TelaPersonagemCoc({
     const esquiva = personagem.dadosFichaJson.esquiva ?? calcularEsquiva(atributos.destreza)
     const sorte = personagem.dadosFichaJson.sorte ?? personagem.dadosFichaJson.pontosDeDestino ?? fichaPadrao.sorte
     const ocupacao = obterOcupacaoFicha(personagem.dadosFichaJson)
+    const vidaMaximaCalculada = calcularVidaMaxima(atributos.constituicao)
+    const vidaMaximaManual = personagem.dadosFichaJson.vidaMaximaManual ?? personagem.dadosFichaJson.vidaMaxima !== vidaMaximaCalculada
     const ocupacaoPericias = personagem.dadosFichaJson.ocupacaoPericias
       ?? personagem.dadosFichaJson.origemPericias
       ?? OCUPACOES.find((item) => item.nome === ocupacao)?.pericias
@@ -337,6 +353,7 @@ export function TelaPersonagemCoc({
         origemPericias: undefined,
         pontosDeDestino: undefined,
         sorte,
+        vidaMaximaManual,
       },
       id: personagem.id,
       imageUrl: personagem.imageUrl ?? '',
@@ -375,6 +392,11 @@ export function TelaPersonagemCoc({
   }
 
   function voltarParaLista() {
+    if (skipListView && onBack) {
+      onBack()
+      return
+    }
+
     setViewMode('lista')
   }
 
@@ -469,6 +491,8 @@ export function TelaPersonagemCoc({
         ...current.ficha.atributos,
         [field]: numero,
       }
+      const deveRecalcularVidaMaxima = field === 'constituicao' && !current.ficha.vidaMaximaManual
+      const vidaMaxima = deveRecalcularVidaMaxima ? calcularVidaMaxima(numero) : current.ficha.vidaMaxima
 
       return {
         ...current,
@@ -476,6 +500,8 @@ export function TelaPersonagemCoc({
           ...current.ficha,
           atributos,
           esquiva: field === 'destreza' && !esquivaManual ? calcularEsquiva(numero) : current.ficha.esquiva,
+          vidaAtual: deveRecalcularVidaMaxima ? Math.min(current.ficha.vidaAtual, vidaMaxima) : current.ficha.vidaAtual,
+          vidaMaxima,
         },
       }
     })
@@ -525,6 +551,7 @@ export function TelaPersonagemCoc({
         ...current.ficha,
         vidaAtual: Math.min(current.ficha.vidaAtual, vidaMaxima),
         vidaMaxima,
+        vidaMaximaManual: true,
       },
     }))
   }
@@ -775,7 +802,7 @@ export function TelaPersonagemCoc({
         <div className="coc-form-view">
           <div className="coc-form-toolbar">
             <button className="ghost-button" type="button" onClick={voltarParaLista}>
-              Voltar para personagens
+              {skipListView ? backLabel : 'Voltar para personagens'}
             </button>
             {form.id && canDelete ? (
               <button
@@ -1223,6 +1250,10 @@ function normalizarNumeroTresDigitos(value: string) {
 
 function calcularEsquiva(destreza: number) {
   return Math.floor(destreza / 2)
+}
+
+function calcularVidaMaxima(constituicao: number) {
+  return Math.max(1, Math.floor(constituicao / 5))
 }
 
 function prepararFichaParaSalvar(ficha: FichaCoc): FichaCoc {

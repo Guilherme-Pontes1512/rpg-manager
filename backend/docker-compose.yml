@@ -2,6 +2,7 @@ name: rpg-manager
 
 services:
   mysql:
+    profiles: ["local-db"]
     image: mysql:8.4
     container_name: rpg-manager-mysql
     environment:
@@ -19,16 +20,14 @@ services:
 
   backend:
     build:
-      context: .
+      context: ..
+      dockerfile: backend/Dockerfile
     container_name: rpg-manager-backend
-    depends_on:
-      mysql:
-        condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: mysql
-      MYSQL_URL: jdbc:mysql://mysql:3306/rpg_manager?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Sao_Paulo
-      MYSQL_USER: root
-      MYSQL_PASSWORD: rpg10
+      MYSQL_URL: ${MYSQL_URL:?Defina MYSQL_URL no arquivo .env}
+      MYSQL_USER: ${MYSQL_USER:?Defina MYSQL_USER no arquivo .env}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Defina MYSQL_PASSWORD no arquivo .env}
       APP_EMAIL_ENABLED: "true"
       SMTP_PASSWORD: ${SMTP_PASSWORD:?Defina SMTP_PASSWORD no arquivo .env}
       FRONTEND_BASE_URL: https://degrading-dreamy-antihero.ngrok-free.dev

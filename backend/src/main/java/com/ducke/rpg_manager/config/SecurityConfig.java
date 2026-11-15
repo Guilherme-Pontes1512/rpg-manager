@@ -1,6 +1,7 @@
 package com.ducke.rpg_manager.config;
 
 import com.ducke.rpg_manager.usuario.service.UsuarioDetailsService;
+import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -51,6 +52,10 @@ public class SecurityConfig {
         http
                 .userDetailsService(usuarioDetailsService)
                 .authorizeHttpRequests(auth -> auth
+                        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+                        .requestMatchers(HttpMethod.GET,
+                                "/", "/index.html", "/assets/**", "/vite.svg"
+                        ).permitAll()
                         .requestMatchers(
                                 "/login",
                                 "/cadastro",

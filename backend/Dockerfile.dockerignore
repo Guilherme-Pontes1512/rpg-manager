@@ -1,0 +1,12 @@
+**/.git
+**/.env
+**/.env.*
+**/node_modules
+**/dist
+**/target
+**/.idea
+**/.codex
+**/.agents
+**/.aws
+**/*.log
+**/*.iml
