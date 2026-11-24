@@ -143,7 +143,7 @@ const SECOES_COLAPSAVEIS: SecaoColapsavel[] = [
   { field: 'anotacoes', label: 'Anotações'},
   { field: 'historico', label: 'Histórico' },
   { field: "aparencia", label: 'Aparência' },
-  { field: 'importantes', label: 'Importantes' },
+  { field: 'importantes', label: 'Relações' },
   { field: 'inventario', label: 'Inventário' },
 ]
 
