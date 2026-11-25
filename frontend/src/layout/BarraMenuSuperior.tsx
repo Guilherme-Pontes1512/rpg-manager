@@ -42,6 +42,7 @@ export function BarraMenuSuperior({
             key={item.view}
             type="button"
             className={currentView === item.view ? 'menu-link active' : 'menu-link'}
+            aria-current={currentView === item.view ? 'page' : undefined}
             onClick={() => onNavigate(item.view)}
             disabled={item.disabled}
           >

@@ -18,7 +18,7 @@ const APP_VIEW_STORAGE_KEY = 'rpg-manager-current-view'
 
 function getInitialTheme(): ThemeMode {
   const storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY)
-  return storedTheme === 'dark' ? 'dark' : 'light'
+  return storedTheme === 'light' ? 'light' : 'dark'
 }
 
 function getInitialAppView(): AppView {

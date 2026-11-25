@@ -215,8 +215,10 @@ export function TelaAutenticacao({
   return (
     <main className="shell">
       <section className="hero-panel">
-        <p className="eyebrow">RPG Manager</p>
+        <p className="eyebrow">Arquivo de investigações</p>
         <h1>RPG Manager</h1>
+        <p className="hero-copy">Toda investigação deixa vestígios. Reúna suas campanhas, personagens e descobertas em um só lugar.</p>
+        <span className="hero-footer">Campanhas · Personagens · Dossiês</span>
       </section>
 
       <section className="auth-panel">

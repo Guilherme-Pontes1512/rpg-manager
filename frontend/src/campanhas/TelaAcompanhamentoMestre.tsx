@@ -411,7 +411,10 @@ export function TelaAcompanhamentoMestre({ campanhaId, onBack, onEditarPersonage
                   </button>
                 </div>
 
-                <h2>Sanidade</h2>
+                <div className="coc-life-header">
+                  <h2>Sanidade</h2>
+                  <output className="coc-sanity-current" aria-label="Sanidade atual">{npcForm.dadosFichaJson.sanidade}</output>
+                </div>
                 <div className="coc-sanidade-row" aria-label="Sanidade">
                   {Array.from({ length: 11 }, (_, index) => index - 5).map((valor) => (
                     <button
@@ -730,13 +733,13 @@ function NpcAcompanhamentoCard({
   }, [npc.dadosFichaJson.vidaAtual, npc.dadosFichaJson.vidaMaxima])
 
   return (
-    <article className="gm-character-card">
+    <article className={`gm-character-card gm-character-card-npc${npc.dadosFichaJson.vidaAtual === 0 ? ' gm-character-card-inactive' : ''}`}>
       <div className="gm-character-portrait" aria-hidden="true">
         {obterRetratoNpc(npc) ? <img src={obterRetratoNpc(npc)} alt="" /> : <SilhuetaPersonagemIcon />}
       </div>
       <div className="gm-character-info">
-        <strong>{npc.nome}</strong>
-        <span>{npc.dadosFichaJson.profissao || 'Sem profissao'}</span>
+        <strong title={npc.nome}>{npc.nome}</strong>
+        <span title={npc.dadosFichaJson.profissao || 'Sem profissao'}>{npc.dadosFichaJson.profissao || 'Sem profissao'}</span>
         <div className="gm-life-bar" aria-hidden="true">
           <span style={{ width: `${vidaPercentual}%` }} />
         </div>
@@ -781,13 +784,13 @@ function PersonagemAcompanhamentoCard({
   }, [personagem.vidaAtual, personagem.vidaMaxima])
 
   return (
-    <article className="gm-character-card">
+    <article className={`gm-character-card${personagem.vidaAtual === 0 ? ' gm-character-card-inactive' : ''}`}>
       <div className="gm-character-portrait" aria-hidden="true">
         {personagem.retratoUrl ? <img src={personagem.retratoUrl} alt="" /> : <SilhuetaPersonagemIcon />}
       </div>
       <div className="gm-character-info">
-        <strong>{personagem.nome}</strong>
-        <span>{personagem.jogadorUsername}</span>
+        <strong title={personagem.nome}>{personagem.nome}</strong>
+        <span title={personagem.jogadorUsername}>{personagem.jogadorUsername}</span>
         <div className="gm-life-bar" aria-hidden="true">
           <span style={{ width: `${vidaPercentual}%` }} />
         </div>

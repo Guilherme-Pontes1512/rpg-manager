@@ -919,7 +919,10 @@ export function TelaPersonagemCoc({
                   </button>
                 </div>
 
-                <h2>Sanidade</h2>
+                <div className="coc-life-header">
+                  <h2>Sanidade</h2>
+                  <output className="coc-sanity-current" aria-label="Sanidade atual">{form.ficha.sanidade}</output>
+                </div>
                 <div className="coc-sanidade-row" aria-label="Sanidade">
                   {Array.from({ length: 11 }, (_, index) => index - 5).map((valor) => (
                     <button

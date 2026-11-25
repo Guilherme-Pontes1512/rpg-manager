@@ -26,7 +26,7 @@ export function ListaCampanhas({
       {loading ? <p className="panel-hint">Carregando campanhas...</p> : null}
       {!loading && campanhas.length === 0 ? (
         <p className="panel-hint campaign-empty-state">
-          <strong>Nenhuma campanha encontrada. Crie a primeira mesa para iniciar o CRUD.</strong>
+          <strong>Nenhuma campanha encontrada. Crie sua primeira mesa para começar uma investigação.</strong>
         </p>
       ) : null}
 

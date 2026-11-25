@@ -52,6 +52,7 @@ export function FormularioLogin({
       <label>
         <input
           type="password"
+          aria-label="Senha"
           placeholder="Sua senha"
           value={loginForm.senha}
           onChange={(event) => onChange('senha', event.target.value)}
