@@ -13,11 +13,15 @@ import com.ducke.rpg_manager.campanha_membros.dtos.CampanhaMembroInput;
 import com.ducke.rpg_manager.campanha_membros.dtos.CampanhaMembroOutput;
 import com.ducke.rpg_manager.campanha_membros.service.CampanhaMembrosService;
 import com.ducke.rpg_manager.usuario.service.UsuarioAtualService;
+import com.ducke.rpg_manager.narrativa.repository.SessaoRepository;
+import com.ducke.rpg_manager.narrativa.repository.EventoRepository;
+import com.ducke.rpg_manager.narrativa.repository.CampanhaNarrativaRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +32,9 @@ public class CampanhaService {
     private final CampanhaCustomRepository campanhaCustomRepository;
     private final CampanhaMembrosService campanhaMembrosService;
     private final UsuarioAtualService usuarioAtualService;
+    private final SessaoRepository sessaoRepository;
+    private final EventoRepository eventoRepository;
+    private final CampanhaNarrativaRepository campanhaNarrativaRepository;
 
     public CampanhaDetalheOutput criarCampanha(CampanhaCreateInput input) {
         Campanha entity = campanhaMapper.toEntity(input);
@@ -71,11 +78,15 @@ public class CampanhaService {
         return obterCampanhaPorId(id);
     }
 
+    @Transactional
     public void deletarCampanha(Long id) {
         campanhaMembrosService.validarPermissaoDeMestre(id);
 
-        if (!campanhaRepository.existsById(id)) {
-            throw new EntityNotFoundException("Campanha nao encontrada");
+        campanhaNarrativaRepository.lockById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Campanha nao encontrada"));
+
+        if (sessaoRepository.existsByCampanhaId(id) || eventoRepository.existsByCampanhaId(id)) {
+            throw new IllegalStateException("Campanha com sessoes ou eventos narrativos deve ser preservada. Exclua os registros permitidos antes de excluir a campanha.");
         }
 
         campanhaRepository.deleteById(id);

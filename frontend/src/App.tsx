@@ -106,8 +106,10 @@ function App() {
             <TelaPersonagemCoc token={token} />
           ) : (
             <section className="panel-surface">
-              <span className="panel-tag">Em breve</span>
-              <h2>Essa area ainda nao foi implementada.</h2>
+              <span className="panel-tag">Diário de campanha</span>
+              <h2>Sessões</h2>
+              <p>Abra uma campanha para acessar suas sessões e o Banco de Eventos privado do mestre.</p>
+              <button className="primary-button" onClick={() => setCurrentView('campanhas')}>Abrir campanhas</button>
             </section>
           )}
         </main>

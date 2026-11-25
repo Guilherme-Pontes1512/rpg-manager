@@ -1,0 +1,86 @@
+[
+  {
+    "fixture": {
+      "userId": 55,
+      "campaignId": 46,
+      "pcId": 44,
+      "npcId": 40,
+      "container": "rpg-sessoes-validacao-20261125",
+      "schema": "narrativa_validacao"
+    },
+    "mode": "HTTP real sem interceptação de API; somente backend e MySQL temporários"
+  },
+  {
+    "label": "API real carrega módulo sem erros",
+    "passed": true
+  },
+  {
+    "label": "Sessão permite salvar formulário vazio",
+    "passed": true
+  },
+  {
+    "label": "Seletores carregam PC e NPC reais",
+    "passed": true
+  },
+  {
+    "label": "Criação vazia abre sessão com identificação legível",
+    "passed": true
+  },
+  {
+    "label": "API persiste sessão vazia sem número automático, participantes ou datas",
+    "passed": true
+  },
+  {
+    "screenshot": "01-sessao-vazia-http",
+    "width": 1440,
+    "documentWidth": 1440,
+    "height": 1000
+  },
+  {
+    "label": "Mesa usa fichas existentes PC e NPC da campanha",
+    "passed": true
+  },
+  {
+    "screenshot": "02-mesa-http-desktop",
+    "width": 1440,
+    "documentWidth": 1425,
+    "height": 1093
+  },
+  {
+    "screenshot": "03-mesa-http-mobile",
+    "width": 390,
+    "documentWidth": 390,
+    "height": 2124
+  },
+  {
+    "screenshot": "04-revisao-http",
+    "width": 1440,
+    "documentWidth": 1425,
+    "height": 1093
+  },
+  {
+    "label": "Sessão encerra sem exigir resumo",
+    "passed": true
+  },
+  {
+    "label": "Anotação persistida reaparece no histórico",
+    "passed": true
+  },
+  {
+    "label": "HTTP real confirma sessão concluída, nota e realização do evento preservados",
+    "passed": true
+  },
+  {
+    "screenshot": "05-historico-http",
+    "width": 1440,
+    "documentWidth": 1425,
+    "height": 1024
+  },
+  {
+    "label": "Fluxo completo sem mocks concluído",
+    "passed": true
+  },
+  {
+    "runtimeErrors": []
+  }
+]

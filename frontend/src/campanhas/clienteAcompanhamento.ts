@@ -10,7 +10,7 @@ async function acompanhamentoRequest<T>(token: string, path: string, init?: Requ
   })
 
   if (!response.ok) {
-    throw new Error(await readError(response))
+    throw new Error(`HTTP ${response.status} — ${path}: ${await readError(response)}`)
   }
 
   if (response.status === 204) {

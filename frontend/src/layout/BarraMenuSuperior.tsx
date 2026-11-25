@@ -17,7 +17,6 @@ type BarraMenuSuperiorProps = {
 const MENU_ITEMS: Array<{ disabled?: boolean; label: string; view: AppView }> = [
   { label: 'Campanhas', view: 'campanhas' },
   { label: 'Personagens', view: 'personagens' },
-  { label: 'Sessoes', view: 'sessoes', disabled: true },
 ]
 
 export function BarraMenuSuperior({

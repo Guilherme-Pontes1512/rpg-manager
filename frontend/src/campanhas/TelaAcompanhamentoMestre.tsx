@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { faDiceD20 } from '@fortawesome/free-solid-svg-icons'
 import { useNotificacoes } from '../notificacoes/NotificacoesProvider'
@@ -23,6 +23,7 @@ import '../personagens/TelaPersonagemCoc.css'
 import './TelaAcompanhamentoMestre.css'
 
 type TelaAcompanhamentoMestreProps = {
+  initialNpcId?: number
   campanhaId: number
   onBack: () => void
   onEditarPersonagem: (personagemId: number) => void
@@ -57,7 +58,7 @@ const NPC_TEXT_FIELDS: { field: keyof Pick<FichaNpcCoc, 'historico' | 'aparencia
   { field: 'rituais', label: 'Rituais' },
 ]
 
-export function TelaAcompanhamentoMestre({ campanhaId, onBack, onEditarPersonagem, token }: TelaAcompanhamentoMestreProps) {
+export function TelaAcompanhamentoMestre({ campanhaId, initialNpcId, onBack, onEditarPersonagem, token }: TelaAcompanhamentoMestreProps) {
   const { notify } = useNotificacoes()
   const [acompanhamento, setAcompanhamento] = useState<AcompanhamentoCampanha | null>(null)
   const [arquivo, setArquivo] = useState<File | null>(null)
@@ -67,6 +68,7 @@ export function TelaAcompanhamentoMestre({ campanhaId, onBack, onEditarPersonage
   const [loading, setLoading] = useState(true)
   const [salvandoNpc, setSalvandoNpc] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const npcInicialAberto = useRef(false)
 
   useEffect(() => {
     void carregarAcompanhamento()
@@ -75,6 +77,12 @@ export function TelaAcompanhamentoMestre({ campanhaId, onBack, onEditarPersonage
   useEffect(() => {
     cancelarEdicaoNpc()
   }, [campanhaId])
+
+  useEffect(() => {
+    if (!initialNpcId || !acompanhamento || npcInicialAberto.current) return
+    const npc = acompanhamento.npcs?.find((item) => item.id === initialNpcId)
+    if (npc) { npcInicialAberto.current = true; editarNpc(npc) }
+  }, [initialNpcId, acompanhamento])
 
   useEffect(() => {
     const stream = acompanharAcompanhamentoCampanhaTempoReal(
@@ -311,8 +319,8 @@ export function TelaAcompanhamentoMestre({ campanhaId, onBack, onEditarPersonage
       <div className="coc-screen">
         <div className="coc-form-view">
           <div className="coc-form-toolbar">
-            <button className="ghost-button" type="button" onClick={voltarParaAcompanhamentoNpc}>
-              Voltar para acompanhamento
+            <button className="ghost-button" type="button" onClick={initialNpcId ? onBack : voltarParaAcompanhamentoNpc}>
+              {initialNpcId ? 'Voltar à sessão' : 'Voltar para acompanhamento'}
             </button>
             {npcEmEdicaoId ? (
               <button className="ghost-button gm-danger-button" type="button" onClick={() => void handleExcluirNpc(npcEmEdicaoId)} disabled={salvandoNpc}>
@@ -768,7 +776,7 @@ function NpcAcompanhamentoCard({
   )
 }
 
-function PersonagemAcompanhamentoCard({
+export function PersonagemAcompanhamentoCard({
   onEditar,
   personagem,
 }: {

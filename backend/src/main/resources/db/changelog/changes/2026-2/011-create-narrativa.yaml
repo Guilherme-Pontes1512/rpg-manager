@@ -1,0 +1,479 @@
+databaseChangeLog:
+  - property:
+      name: narrativaText
+      value: varchar(1000000000)
+      dbms: h2
+  - property:
+      name: narrativaText
+      value: text
+      dbms: postgresql,mysql
+  - property:
+      name: narrativaText
+      value: text
+  - changeSet:
+      id: 011-create-narrativa
+      author: codex
+      changes:
+        - createTable:
+            tableName: sessoes
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: campanha_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: numero
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: titulo
+                  type: varchar(255)
+              - column:
+                  name: descricao
+                  type: ${narrativaText}
+              - column:
+                  name: data_real
+                  type: date
+              - column:
+                  name: data_narrativa
+                  type: varchar(255)
+              - column:
+                  name: status
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: resumo
+                  type: ${narrativaText}
+              - column:
+                  name: inicio
+                  type: timestamp
+              - column:
+                  name: fim
+                  type: timestamp
+              - column:
+                  name: criado_em
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: atualizado_em
+                  type: timestamp
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: eventos
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: campanha_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: titulo
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: descricao
+                  type: ${narrativaText}
+              - column:
+                  name: tipo
+                  type: varchar(32)
+              - column:
+                  name: status
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: local
+                  type: varchar(255)
+              - column:
+                  name: data_narrativa
+                  type: varchar(255)
+              - column:
+                  name: condicoes
+                  type: ${narrativaText}
+              - column:
+                  name: orientacoes
+                  type: ${narrativaText}
+              - column:
+                  name: evidencias
+                  type: ${narrativaText}
+              - column:
+                  name: consequencias
+                  type: ${narrativaText}
+              - column:
+                  name: criado_em
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: atualizado_em
+                  type: timestamp
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: sessao_eventos
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: sessao_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: evento_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ordem
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: observacoes
+                  type: ${narrativaText}
+              - column:
+                  name: resultado
+                  type: ${narrativaText}
+              - column:
+                  name: consequencias
+                  type: ${narrativaText}
+              - column:
+                  name: evidencias
+                  type: ${narrativaText}
+              - column:
+                  name: realizado_em
+                  type: timestamp
+        - createTable:
+            tableName: notas_sessao
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: sessao_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: evento_id
+                  type: bigint
+              - column:
+                  name: titulo
+                  type: varchar(255)
+              - column:
+                  name: conteudo
+                  type: ${narrativaText}
+                  constraints:
+                    nullable: false
+              - column:
+                  name: categoria
+                  type: varchar(40)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: criado_em
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: atualizado_em
+                  type: timestamp
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: sessoes
+            baseColumnNames: campanha_id
+            referencedTableName: campanhas
+            referencedColumnNames: id
+            constraintName: fk_sessoes_campanha_id
+        - addForeignKeyConstraint:
+            baseTableName: eventos
+            baseColumnNames: campanha_id
+            referencedTableName: campanhas
+            referencedColumnNames: id
+            constraintName: fk_eventos_campanha_id
+        - addForeignKeyConstraint:
+            baseTableName: sessao_eventos
+            baseColumnNames: sessao_id
+            referencedTableName: sessoes
+            referencedColumnNames: id
+            constraintName: fk_sessao_eventos_sessao_id
+        - addForeignKeyConstraint:
+            baseTableName: sessao_eventos
+            baseColumnNames: evento_id
+            referencedTableName: eventos
+            referencedColumnNames: id
+            constraintName: fk_sessao_eventos_evento_id
+        - addForeignKeyConstraint:
+            baseTableName: notas_sessao
+            baseColumnNames: sessao_id
+            referencedTableName: sessoes
+            referencedColumnNames: id
+            constraintName: fk_notas_sessao_sessao_id
+        - addForeignKeyConstraint:
+            baseTableName: notas_sessao
+            baseColumnNames: evento_id
+            referencedTableName: eventos
+            referencedColumnNames: id
+            constraintName: fk_notas_sessao_evento_id
+        - addUniqueConstraint:
+            tableName: sessoes
+            columnNames: campanha_id, numero
+            constraintName: uk_sessoes_campanha_id_numero
+        - addUniqueConstraint:
+            tableName: sessao_eventos
+            columnNames: sessao_id, evento_id
+            constraintName: uk_sessao_eventos_sessao_id_evento_id
+        - createIndex:
+            tableName: sessoes
+            indexName: idx_sessoes_campanha_id_status
+            columns:
+              - column:
+                  name: campanha_id
+              - column:
+                  name: status
+        - createIndex:
+            tableName: eventos
+            indexName: idx_eventos_campanha_id_status
+            columns:
+              - column:
+                  name: campanha_id
+              - column:
+                  name: status
+        - createIndex:
+            tableName: sessao_eventos
+            indexName: idx_sessao_eventos_evento_id_status
+            columns:
+              - column:
+                  name: evento_id
+              - column:
+                  name: status
+        - createIndex:
+            tableName: notas_sessao
+            indexName: idx_notas_sessao_sessao_id_criado_em
+            columns:
+              - column:
+                  name: sessao_id
+              - column:
+                  name: criado_em
+        - createTable:
+            tableName: sessao_personagens
+            columns:
+              - column:
+                  name: sessao_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: personagem_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: sessao_personagens
+            columnNames: sessao_id, personagem_id
+            constraintName: uk_sessao_personagens_sessao_id_personagem_id
+        - addForeignKeyConstraint:
+            baseTableName: sessao_personagens
+            baseColumnNames: sessao_id
+            referencedTableName: sessoes
+            referencedColumnNames: id
+            constraintName: fk_sessao_personagens_sessao_id
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: sessao_personagens
+            baseColumnNames: personagem_id
+            referencedTableName: personagens
+            referencedColumnNames: id
+            constraintName: fk_sessao_personagens_personagem_id
+            onDelete: CASCADE
+        - createTable:
+            tableName: sessao_npcs
+            columns:
+              - column:
+                  name: sessao_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: npc_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: sessao_npcs
+            columnNames: sessao_id, npc_id
+            constraintName: uk_sessao_npcs_sessao_id_npc_id
+        - addForeignKeyConstraint:
+            baseTableName: sessao_npcs
+            baseColumnNames: sessao_id
+            referencedTableName: sessoes
+            referencedColumnNames: id
+            constraintName: fk_sessao_npcs_sessao_id
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: sessao_npcs
+            baseColumnNames: npc_id
+            referencedTableName: campanha_npcs
+            referencedColumnNames: id
+            constraintName: fk_sessao_npcs_npc_id
+            onDelete: CASCADE
+        - createTable:
+            tableName: evento_personagens
+            columns:
+              - column:
+                  name: evento_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: personagem_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: evento_personagens
+            columnNames: evento_id, personagem_id
+            constraintName: uk_evento_personagens_evento_id_personagem_id
+        - addForeignKeyConstraint:
+            baseTableName: evento_personagens
+            baseColumnNames: evento_id
+            referencedTableName: eventos
+            referencedColumnNames: id
+            constraintName: fk_evento_personagens_evento_id
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: evento_personagens
+            baseColumnNames: personagem_id
+            referencedTableName: personagens
+            referencedColumnNames: id
+            constraintName: fk_evento_personagens_personagem_id
+            onDelete: CASCADE
+        - createTable:
+            tableName: evento_npcs
+            columns:
+              - column:
+                  name: evento_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: npc_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: evento_npcs
+            columnNames: evento_id, npc_id
+            constraintName: uk_evento_npcs_evento_id_npc_id
+        - addForeignKeyConstraint:
+            baseTableName: evento_npcs
+            baseColumnNames: evento_id
+            referencedTableName: eventos
+            referencedColumnNames: id
+            constraintName: fk_evento_npcs_evento_id
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: evento_npcs
+            baseColumnNames: npc_id
+            referencedTableName: campanha_npcs
+            referencedColumnNames: id
+            constraintName: fk_evento_npcs_npc_id
+            onDelete: CASCADE
+        - createTable:
+            tableName: nota_sessao_personagens
+            columns:
+              - column:
+                  name: nota_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: personagem_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: nota_sessao_personagens
+            columnNames: nota_id, personagem_id
+            constraintName: uk_nota_sessao_personagens_nota_id_personagem_id
+        - addForeignKeyConstraint:
+            baseTableName: nota_sessao_personagens
+            baseColumnNames: nota_id
+            referencedTableName: notas_sessao
+            referencedColumnNames: id
+            constraintName: fk_nota_sessao_personagens_nota_id
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: nota_sessao_personagens
+            baseColumnNames: personagem_id
+            referencedTableName: personagens
+            referencedColumnNames: id
+            constraintName: fk_nota_sessao_personagens_personagem_id
+            onDelete: CASCADE
+        - createTable:
+            tableName: nota_sessao_npcs
+            columns:
+              - column:
+                  name: nota_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: npc_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: nota_sessao_npcs
+            columnNames: nota_id, npc_id
+            constraintName: uk_nota_sessao_npcs_nota_id_npc_id
+        - addForeignKeyConstraint:
+            baseTableName: nota_sessao_npcs
+            baseColumnNames: nota_id
+            referencedTableName: notas_sessao
+            referencedColumnNames: id
+            constraintName: fk_nota_sessao_npcs_nota_id
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: nota_sessao_npcs
+            baseColumnNames: npc_id
+            referencedTableName: campanha_npcs
+            referencedColumnNames: id
+            constraintName: fk_nota_sessao_npcs_npc_id
+            onDelete: CASCADE

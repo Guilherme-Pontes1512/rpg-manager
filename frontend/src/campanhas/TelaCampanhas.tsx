@@ -13,6 +13,8 @@ import {
 import { FormularioCampanha } from './FormularioCampanha'
 import { ListaCampanhas } from './ListaCampanhas'
 import { TelaAcompanhamentoMestre } from './TelaAcompanhamentoMestre'
+import { TelaSessoes } from './TelaSessoes'
+import { Abas } from '../layout/Abas'
 import { useNotificacoes } from '../notificacoes/NotificacoesProvider'
 import { TelaPersonagemCoc } from '../personagens/TelaPersonagemCoc'
 import type { AuthUser } from '../auth'
@@ -28,7 +30,7 @@ type TelaCampanhasProps = {
   user: AuthUser
 }
 
-type CampaignViewMode = 'lista' | 'formulario' | 'personagens' | 'acompanhamento'
+type CampaignViewMode = 'lista' | 'formulario' | 'personagens' | 'acompanhamento' | 'sessoes'
 
 type StoredCampaignNavigation = {
   campanhaSelecionadaId: number | null
@@ -61,7 +63,7 @@ function getInitialCampaignNavigation(): StoredCampaignNavigation {
       personagemSelecionadoId: typeof parsedNavigation.personagemSelecionadoId === 'number'
         ? parsedNavigation.personagemSelecionadoId
         : null,
-      viewMode: viewMode === 'formulario' || viewMode === 'personagens' || viewMode === 'acompanhamento'
+      viewMode: viewMode === 'formulario' || viewMode === 'personagens' || viewMode === 'acompanhamento' || viewMode === 'sessoes'
         ? viewMode
         : 'lista',
     }
@@ -83,6 +85,8 @@ export function TelaCampanhas({ token, user }: TelaCampanhasProps) {
   const [loadingLista, setLoadingLista] = useState(true)
   const [saving, setSaving] = useState(false)
   const [playerSubmitting, setPlayerSubmitting] = useState(false)
+  const [retornoSessao, setRetornoSessao] = useState(false)
+  const [npcSelecionadoId, setNpcSelecionadoId] = useState<number | undefined>()
 
   useEffect(() => {
     void carregarCampanhas()
@@ -128,6 +132,7 @@ export function TelaCampanhas({ token, user }: TelaCampanhasProps) {
   async function selecionarCampanha(campanhaId: number) {
     try {
       await carregarCampanhaSelecionada(campanhaId)
+      limparRetornoSessao()
       setViewMode('formulario')
     } catch (caughtError) {
       notify('error', extrairErro(caughtError, 'Nao foi possivel abrir a campanha.'))
@@ -149,6 +154,7 @@ export function TelaCampanhas({ token, user }: TelaCampanhasProps) {
   async function abrirPersonagensDaCampanha(campanhaId: number) {
     try {
       const detalhe = await obterCampanha(token, campanhaId)
+      limparRetornoSessao()
       setViewMode(detalhe.papel === 'MESTRE' ? 'acompanhamento' : 'personagens')
       setCampanhaSelecionadaId(campanhaId)
       setCampanhaAtual(detalhe)
@@ -163,6 +169,7 @@ export function TelaCampanhas({ token, user }: TelaCampanhasProps) {
   }
 
   function iniciarNovaCampanha() {
+    limparRetornoSessao()
     setViewMode('formulario')
     setCampanhaSelecionadaId(null)
     setPersonagemSelecionadoId(null)
@@ -278,6 +285,7 @@ export function TelaCampanhas({ token, user }: TelaCampanhasProps) {
   const membroAtual = campanhaAtual?.membros.find((membro) => membro.usuarioId === user.id)
 
   function voltarParaLista() {
+    limparRetornoSessao()
     setPersonagemSelecionadoId(null)
     setViewMode('lista')
   }
@@ -289,17 +297,24 @@ export function TelaCampanhas({ token, user }: TelaCampanhasProps) {
 
   function voltarParaAcompanhamento() {
     setPersonagemSelecionadoId(null)
-    setViewMode('acompanhamento')
+    setViewMode(retornoSessao ? 'sessoes' : 'acompanhamento')
+    limparRetornoSessao()
+  }
+
+  function limparRetornoSessao() {
+    setRetornoSessao(false)
+    setNpcSelecionadoId(undefined)
+    setPersonagemSelecionadoId(null)
   }
 
   return (
     <div className="campaigns-screen">
       <header className="campaigns-topline">
         <div>
-          <h1>Campanhas</h1>
+          <h1>{viewMode !== 'lista' && campanhaAtual ? campanhaAtual.nome : 'Campanhas'}</h1>
         </div>
         <div className="campaigns-top-actions">
-          {!isFormView && !isPersonagensView && !isAcompanhamentoView ? (
+          {viewMode === 'lista' ? (
             <button className="primary-button" type="button" onClick={iniciarNovaCampanha}>
               Criar nova campanha
             </button>
@@ -307,16 +322,25 @@ export function TelaCampanhas({ token, user }: TelaCampanhasProps) {
         </div>
       </header>
 
-      {(isAcompanhamentoView || (isPersonagensView && campanhaAtual?.papel === 'MESTRE' && !personagemSelecionadoId)) && campanhaAtual ? (
+      {campanhaAtual?.papel === 'MESTRE' && viewMode !== 'lista' && !personagemSelecionadoId ? <Abas
+        label="Navegação da campanha"
+        ativa={viewMode}
+        itens={[{ valor: 'formulario', titulo: 'Campanha' }, { valor: 'acompanhamento', titulo: 'Acompanhamento' }, { valor: 'sessoes', titulo: 'Sessões' }]}
+        onChange={(valor) => { limparRetornoSessao(); setViewMode(valor as CampaignViewMode) }}
+      /> : null}
+
+      {viewMode === 'sessoes' && campanhaAtual?.papel === 'MESTRE' ? <TelaSessoes usuarioId={user.id} campanhaId={campanhaAtual.id} token={token} onEditarPersonagem={(id) => { setRetornoSessao(true); abrirFichaPersonagemComoMestre(id) }} onAcompanhamento={(npcId) => { setRetornoSessao(true); setNpcSelecionadoId(npcId); setViewMode('acompanhamento') }} /> : (isAcompanhamentoView || (isPersonagensView && campanhaAtual?.papel === 'MESTRE' && !personagemSelecionadoId)) && campanhaAtual ? (
         <TelaAcompanhamentoMestre
+          key={`${campanhaAtual.id}-${npcSelecionadoId ?? 'painel'}`}
           campanhaId={campanhaAtual.id}
-          onBack={voltarParaLista}
+          initialNpcId={npcSelecionadoId}
+          onBack={retornoSessao ? () => { limparRetornoSessao(); setViewMode('sessoes') } : voltarParaLista}
           onEditarPersonagem={abrirFichaPersonagemComoMestre}
           token={token}
         />
       ) : (isFichaPersonagemMestre || isPersonagensView) && campanhaAtual ? (
         <TelaPersonagemCoc
-          backLabel={campanhaAtual.papel === 'MESTRE' ? 'Voltar para acompanhamento' : 'Voltar para campanhas'}
+          backLabel={retornoSessao ? 'Voltar à sessão' : campanhaAtual.papel === 'MESTRE' ? 'Voltar para acompanhamento' : 'Voltar para campanhas'}
           campanhaId={campanhaAtual.id}
           campanhaNome={campanhaAtual.nome}
           canCreate={membroAtual?.papel === 'JOGADOR'}

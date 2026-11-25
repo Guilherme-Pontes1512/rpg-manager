@@ -55,6 +55,24 @@ Dentro do Docker, o backend deve usar o host `mysql`, nao `localhost`, porque ca
 
 O frontend compartilha a rede do backend para manter o proxy do Vite apontando para `localhost:8080`.
 
+## Atualizar o backend após mudanças no código
+
+O frontend usa um volume com os arquivos locais e o Vite atualiza a interface durante o desenvolvimento. O backend executa o JAR compilado dentro da imagem: alterações em controllers, serviços, DTOs ou migrations exigem recompilar a imagem. Reiniciar o container sem rebuild mantém o JAR anterior.
+
+Para preparar a imagem atualizada, a partir da raiz do repositório:
+
+```sh
+docker compose -f backend/docker-compose.yml build backend
+```
+
+Depois de conferir o banco configurado e preparar a atualização dos seus dados, aplique a imagem no ambiente desejado:
+
+```sh
+docker compose -f backend/docker-compose.yml up -d --no-deps backend
+```
+
+O Liquibase executa na inicialização. No módulo de Sessões, a migration `012-simplify-sessoes` permite números nulos e remove somente as antigas datas da sessão; datas de eventos e timestamps técnicos são preservados. Não utilize recriação de volumes para atualizar código. Se o frontend novo consultar um backend antigo, os endpoints de Sessões podem não existir, mesmo que campanhas e personagens continuem funcionando.
+
 Se voce iniciou containers manualmente pelo Docker Desktop, prefira recriar pelo Compose para garantir que backend e banco estejam na mesma rede:
 
 ```powershell

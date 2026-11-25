@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: 012-simplify-sessoes
+      author: codex
+      changes:
+        - dropNotNullConstraint:
+            tableName: sessoes
+            columnName: numero
+            columnDataType: int
+        - dropColumn:
+            tableName: sessoes
+            columnName: data_real
+        - dropColumn:
+            tableName: sessoes
+            columnName: data_narrativa
+        - dropColumn:
+            tableName: sessoes
+            columnName: inicio
+        - dropColumn:
+            tableName: sessoes
+            columnName: fim

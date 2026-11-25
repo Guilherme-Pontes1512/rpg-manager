@@ -1,0 +1,186 @@
+[
+  {
+    "label": "Estado vazio de sessões",
+    "passed": true
+  },
+  {
+    "screenshot": "01-sessoes-vazio",
+    "width": 1440,
+    "documentWidth": 1440,
+    "height": 1000
+  },
+  {
+    "label": "Formulário de sessão não exige campos",
+    "passed": true
+  },
+  {
+    "label": "Formulário de sessão sem datas",
+    "passed": true
+  },
+  {
+    "label": "Múltiplas sessões totalmente vazias sem numeração automática",
+    "passed": true
+  },
+  {
+    "label": "Criação apenas número ou apenas título",
+    "passed": true
+  },
+  {
+    "screenshot": "11-sessoes-flexiveis",
+    "width": 1440,
+    "documentWidth": 1425,
+    "height": 1416
+  },
+  {
+    "label": "Rascunho de formulário recuperado após recarregar e reabrir",
+    "passed": true
+  },
+  {
+    "label": "Cadastro de evento independente de sessão",
+    "passed": true
+  },
+  {
+    "screenshot": "02-sessao-planejada",
+    "width": 1440,
+    "documentWidth": 1440,
+    "height": 1000
+  },
+  {
+    "label": "Associação existente e criação dentro da sessão",
+    "passed": true
+  },
+  {
+    "label": "Metadados NPC e data narrativa visíveis no evento",
+    "passed": true
+  },
+  {
+    "screenshot": "03-planejamento-eventos",
+    "width": 1440,
+    "documentWidth": 1425,
+    "height": 1142
+  },
+  {
+    "label": "Mesa reutiliza card do personagem participante",
+    "passed": true
+  },
+  {
+    "screenshot": "04-mesa-desktop",
+    "width": 1440,
+    "documentWidth": 1425,
+    "height": 1142
+  },
+  {
+    "screenshot": "05-mesa-mobile",
+    "width": 390,
+    "documentWidth": 390,
+    "height": 2385
+  },
+  {
+    "label": "Registro rápido aparece antes dos eventos em celular",
+    "passed": true
+  },
+  {
+    "label": "Ações secundárias permanecem recolhidas",
+    "passed": true
+  },
+  {
+    "label": "Ficha existente do NPC aberta diretamente pela sessão",
+    "passed": true
+  },
+  {
+    "screenshot": "10-ficha-npc-existente",
+    "width": 390,
+    "documentWidth": 390,
+    "height": 4388
+  },
+  {
+    "label": "Retorno da ficha NPC preserva sessão em andamento",
+    "passed": true
+  },
+  {
+    "label": "Realização rápida e anotação durante a mesa",
+    "passed": true
+  },
+  {
+    "label": "Rascunho preservado entre abas",
+    "passed": true
+  },
+  {
+    "label": "Pesquisa no diário",
+    "passed": true
+  },
+  {
+    "screenshot": "06-diario-mobile",
+    "width": 390,
+    "documentWidth": 390,
+    "height": 1291
+  },
+  {
+    "screenshot": "07-revisao-desktop",
+    "width": 1440,
+    "documentWidth": 1425,
+    "height": 1142
+  },
+  {
+    "label": "Encerramento com retorno coletivo ao banco",
+    "passed": true
+  },
+  {
+    "screenshot": "08-resumo-concluido",
+    "width": 1440,
+    "documentWidth": 1425,
+    "height": 1060
+  },
+  {
+    "label": "Edição de sessão concluída",
+    "passed": true
+  },
+  {
+    "label": "Estado de erro de carregamento",
+    "passed": true
+  },
+  {
+    "screenshot": "09-erro-carregamento",
+    "width": 1440,
+    "documentWidth": 1425,
+    "height": 1346
+  },
+  {
+    "label": "Recuperação após falha",
+    "passed": true
+  },
+  {
+    "label": "Erro HTTP 404 identifica endpoint de sessões indisponível",
+    "passed": true
+  },
+  {
+    "label": "Falha de consulta não aparece como lista vazia",
+    "passed": true
+  },
+  {
+    "label": "Personagens e NPCs permanecem disponíveis com sessões 404 e acompanhamento 200",
+    "passed": true
+  },
+  {
+    "screenshot": "12-sessoes-endpoint-indisponivel",
+    "width": 1440,
+    "documentWidth": 1440,
+    "height": 1000
+  },
+  {
+    "label": "Falha auxiliar de pessoas não impede listagem das sessões",
+    "passed": true
+  },
+  {
+    "label": "Sessão vazia salva mesmo com acompanhamento indisponível",
+    "passed": true
+  },
+  {
+    "label": "Fluxo visual completo com API interceptada e dados fictícios",
+    "passed": true
+  },
+  {
+    "runtimeErrors": [],
+    "mode": "Browser real com API fetch interceptada; não valida integração HTTP real."
+  }
+]
